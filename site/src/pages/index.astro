@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PaperCard from '../components/PaperCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPapers = await getCollection('papers');
+const allProjects = await getCollection('projects');
+
+// Pinned items — the flagship work
+const pinnedPapers = allPapers.filter((p) =>
+  ['paper-visual-inspection-cvc2026', 'paper-pid-mppi-tow-truck-iciea2026'].includes(p.id)
+);
+const pinnedProject = allProjects.find((p) => p.id === 'project-autonomous-ev-tow-truck');
+
+// Extract plain-english summary from body as fallback summary
+function getSummary(body: string | undefined): string | undefined {
+  if (!body) return undefined;
+  const match = body.match(/>\s*([^\n]+)/);
+  return match?.[1]?.trim();
+}
+---
+
+<BaseLayout title="Muhammad Suleiman Qureshi">
+  <!-- Hero -->
+  <section class="max-w-4xl mx-auto px-6 pt-16 pb-20">
+    <p class="text-sm font-medium text-[--color-accent] uppercase tracking-widest mb-4 animate-fade-in-up delay-100">Robotics &amp; Automation Engineer</p>
+    <h1 class="font-heading text-5xl sm:text-6xl font-semibold leading-tight text-zinc-900 dark:text-zinc-100 mb-6 animate-fade-in-up delay-200">
+      Muhammad<br />Suleiman Qureshi
+    </h1>
+    <p class="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl leading-relaxed mb-8 animate-fade-in-up delay-300">
+      Building autonomous systems from first principles — from PCB design and system identification
+      to model predictive control and real-time computer vision. Currently leading R&D at
+      <a href="https://habib.edu.pk" target="_blank" rel="noopener" class="text-zinc-900 dark:text-zinc-100 font-medium hover:text-[--color-accent] transition-colors">HU-Takhleeq</a>,
+      Habib University's industry-academia innovation hub.
+    </p>
+    <div class="flex flex-wrap gap-3 animate-fade-in-up delay-400">
+      <a href="/about" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[--color-accent] text-white text-sm font-medium hover:bg-[--color-accent-hover] transition-colors cursor-pointer">
+        About Me
+      </a>
+      <a href="/research" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+        View Research
+      </a>
+      <a href="/projects" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+        Browse Projects
+      </a>
+      <a href="/Suleiman_Resume_April_2026.pdf" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Resume
+      </a>
+    </div>
+  </section>
+
+  <!-- Quick stats bar -->
+  <section class="border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-6">
+    <div class="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      <div>
+        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="6" data-format="integer">6</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">Papers</p>
+      </div>
+      <div>
+        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="9" data-format="integer">9</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">Projects</p>
+      </div>
+      <div>
+        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="3.88" data-format="decimal">3.88</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">CGPA / 4.0</p>
+      </div>
+      <div>
+        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="4" data-format="prefix" data-prefix="×">×4</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">Dean's List</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pinned research -->
+  <section class="max-w-4xl mx-auto px-6 py-16">
+    <div class="flex items-center justify-between mb-8 reveal">
+      <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Selected Research</h2>
+      <a href="/research" class="text-sm text-[--color-accent] hover:underline transition-colors">All papers →</a>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-5">
+      {pinnedPapers.map((paper, i) => (
+        <div class="reveal" style={`transition-delay: ${i * 100}ms`}>
+          <PaperCard
+            title={paper.data.title}
+            slug={paper.id}
+            status={paper.data.status}
+            date={String(paper.data.date)}
+            tags={paper.data.tags}
+            summary={getSummary(paper.body)}
+            cover={paper.data.cover}
+            venue={paper.data.venue}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Pinned project -->
+  {pinnedProject && (
+    <section class="max-w-4xl mx-auto px-6 pb-16">
+      <div class="flex items-center justify-between mb-8 reveal">
+        <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Flagship Project</h2>
+        <a href="/projects" class="text-sm text-[--color-accent] hover:underline transition-colors">All projects →</a>
+      </div>
+      <div class="reveal" style="transition-delay: 100ms">
+        <ProjectCard
+          title={pinnedProject.data.title}
+          slug={pinnedProject.id}
+          status={pinnedProject.data.status}
+          date={String(pinnedProject.data.date)}
+          tags={pinnedProject.data.tags}
+          summary={getSummary(pinnedProject.body)}
+          cover={pinnedProject.data.cover}
+          collaborator={pinnedProject.data.collaborator}
+        />
+      </div>
+    </section>
+  )}
+
+  <!-- Contact strip -->
+  <section class="bg-zinc-900 dark:bg-zinc-950 text-white py-14 px-6">
+    <div class="max-w-4xl mx-auto text-center reveal">
+      <h2 class="font-heading text-3xl font-semibold mb-3">Let's work together</h2>
+      <p class="text-zinc-400 mb-8 max-w-md mx-auto">Open to research collaborations, industry partnerships, and interesting problems in robotics and automation.</p>
+      <a href="/contact" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[--color-accent] text-white text-sm font-medium hover:bg-[--color-accent-hover] transition-colors cursor-pointer">
+        Get in touch
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const counters = document.querySelectorAll<HTMLElement>('[data-counter]');
+    if (!counters.length) return;
+
+    const DURATION = 1400;
+
+    function easeOut(t: number): number {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function animateCounter(el: HTMLElement) {
+      const target = parseFloat(el.dataset.counter ?? '0');
+      const format = el.dataset.format ?? 'integer';
+      const prefix = el.dataset.prefix ?? '';
+      const start = performance.now();
+
+      function tick(now: number) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / DURATION, 1);
+        const value = target * easeOut(progress);
+
+        if (format === 'decimal') {
+          el.textContent = value.toFixed(2);
+        } else if (format === 'prefix') {
+          el.textContent = prefix + Math.round(value).toString();
+        } else {
+          el.textContent = Math.round(value).toString();
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          // Snap to exact final value
+          if (format === 'decimal') el.textContent = target.toFixed(2);
+          else if (format === 'prefix') el.textContent = prefix + target.toString();
+          else el.textContent = target.toString();
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    counters.forEach((el) => observer.observe(el));
+  })();
+</script>
+
+<style>
+  .font-heading { font-family: var(--font-heading); }
+</style>

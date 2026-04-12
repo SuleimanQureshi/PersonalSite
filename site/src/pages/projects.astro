@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) =>
+  String(b.data.date).localeCompare(String(a.data.date))
+);
+
+function getSummary(body: string | undefined): string | undefined {
+  if (!body) return undefined;
+  const match = body.match(/^\s*>\s*(.+)/m);
+  return match?.[1]?.trim();
+}
+
+// Collect all unique tags
+const allTags = [...new Set(projects.flatMap((p) => p.data.tags))].sort();
+
+// Collaborator extraction from body
+function getCollaborator(body: string | undefined): string | undefined {
+  if (!body) return undefined;
+  const m = body.match(/\|\s*\*\*Collaborator\*\*\s*\|\s*([^|]+)\|/);
+  return m?.[1]?.trim();
+}
+---
+
+<BaseLayout
+  title="Projects"
+  description="Engineering projects by Muhammad Suleiman Qureshi — autonomous systems, robotics, and computer vision."
+>
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    <h1 class="font-heading text-4xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Projects</h1>
+    <p class="text-zinc-500 dark:text-zinc-400 mb-8 max-w-2xl">
+      From autonomous tow trucks to robotic arms — hardware, software, and everything in between.
+    </p>
+
+    <!-- Tag filter (client-side) -->
+    <div class="flex flex-wrap gap-2 mb-10" id="tag-filter">
+      <button
+        data-tag=""
+        class="tag-btn active cursor-pointer px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
+      >All</button>
+      {allTags.map((tag) => (
+        <button
+          data-tag={tag}
+          class="tag-btn cursor-pointer px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
+        >{tag}</button>
+      ))}
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="project-grid">
+      {projects.map((project) => (
+        <div class="project-item" data-tags={project.data.tags.join(',')}>
+          <ProjectCard
+            title={project.data.title}
+            slug={project.id}
+            status={project.data.status}
+            date={String(project.data.date)}
+            tags={project.data.tags}
+            summary={getSummary(project.body)}
+            cover={project.data.cover}
+            collaborator={getCollaborator(project.body)}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .font-heading { font-family: var(--font-heading); }
+
+  .tag-btn {
+    border-color: #e4e4e7;
+    color: #52525b;
+    background: white;
+  }
+  .dark .tag-btn {
+    border-color: #27272a;
+    color: #a1a1aa;
+    background: #18181b;
+  }
+  .tag-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+  }
+  .tag-btn:hover:not(.active) {
+    border-color: #a1a1aa;
+    color: #18181b;
+  }
+  .dark .tag-btn:hover:not(.active) {
+    border-color: #52525b;
+    color: #fafafa;
+  }
+
+  .project-item { transition: opacity 0.2s; }
+  .project-item.hidden { display: none; }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.tag-btn');
+  const items = document.querySelectorAll<HTMLDivElement>('.project-item');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag ?? '';
+
+      buttons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      items.forEach((item) => {
+        const tags = (item.dataset.tags ?? '').split(',');
+        if (!tag || tags.includes(tag)) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>

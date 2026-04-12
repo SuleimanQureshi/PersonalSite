@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PaperCard from '../components/PaperCard.astro';
+import { getCollection } from 'astro:content';
+
+const papers = (await getCollection('papers')).sort((a, b) =>
+  String(b.data.date).localeCompare(String(a.data.date))
+);
+
+// Pull the blockquote summary from the body
+function getSummary(body: string | undefined): string | undefined {
+  if (!body) return undefined;
+  const match = body.match(/^\s*>\s*(.+)/m);
+  return match?.[1]?.trim();
+}
+
+const statusOrder: Record<string, number> = {
+  published: 0,
+  completed: 0,
+  preprint: 1,
+  'in-progress': 2,
+  archived: 3,
+};
+
+const sorted = [...papers].sort(
+  (a, b) => (statusOrder[a.data.status] ?? 9) - (statusOrder[b.data.status] ?? 9)
+);
+
+// Venue extraction from body
+function getVenue(body: string | undefined): string | undefined {
+  if (!body) return undefined;
+  const m = body.match(/\|\s*\*\*Venue\*\*\s*\|\s*([^|]+)\|/);
+  return m?.[1]?.trim();
+}
+---
+
+<BaseLayout
+  title="Research"
+  description="Papers and research by Muhammad Suleiman Qureshi in robotics, control systems, and computer vision."
+>
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    <h1 class="font-heading text-4xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Research</h1>
+    <p class="text-zinc-500 dark:text-zinc-400 mb-10 max-w-2xl">
+      Published and ongoing work in autonomous systems, control theory, and industrial computer vision.
+    </p>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {sorted.map((paper) => (
+        <PaperCard
+          title={paper.data.title}
+          slug={paper.id}
+          status={paper.data.status}
+          date={String(paper.data.date)}
+          tags={paper.data.tags}
+          summary={getSummary(paper.body)}
+          cover={paper.data.cover}
+          venue={getVenue(paper.body)}
+        />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .font-heading { font-family: var(--font-heading); }
+</style>

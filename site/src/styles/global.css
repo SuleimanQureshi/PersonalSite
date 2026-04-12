@@ -1,0 +1,238 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600&display=swap');
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-heading: 'Crimson Pro', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --color-bg: #fafafa;
+  --color-bg-dark: #09090b;
+  --color-surface: #ffffff;
+  --color-surface-dark: #18181b;
+  --color-border: #e4e4e7;
+  --color-border-dark: #27272a;
+  --color-text: #09090b;
+  --color-text-dark: #fafafa;
+  --color-muted: #52525b;
+  --color-muted-dark: #a1a1aa;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dark body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+/* Custom prose overrides */
+.prose {
+  --tw-prose-headings: var(--color-text);
+  --tw-prose-body: var(--color-text);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-code: var(--color-text);
+  --tw-prose-quotes: var(--color-muted);
+  --tw-prose-quote-borders: var(--color-accent);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.dark .prose {
+  --tw-prose-headings: var(--color-text-dark);
+  --tw-prose-body: var(--color-text-dark);
+  --tw-prose-invert-links: var(--color-accent);
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.prose h1 { font-size: 2.25rem; }
+.prose h2 { font-size: 1.6rem; margin-top: 2.5rem; }
+.prose h3 { font-size: 1.25rem; }
+
+.prose blockquote {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.15rem;
+}
+
+/* Tag pill */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background-color: #e4e4e7;
+  color: #3f3f46;
+  transition: background-color 0.15s;
+}
+
+.dark .tag-pill {
+  background-color: #27272a;
+  color: #a1a1aa;
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-published  { background: #dcfce7; color: #15803d; }
+.status-completed  { background: #dcfce7; color: #15803d; }
+.status-preprint   { background: #dbeafe; color: #1d4ed8; }
+.status-in-progress { background: #fef9c3; color: #a16207; }
+.status-archived   { background: #f4f4f5; color: #71717a; }
+
+.dark .status-published, .dark .status-completed { background: #14532d; color: #86efac; }
+.dark .status-preprint   { background: #1e3a5f; color: #93c5fd; }
+.dark .status-in-progress { background: #3f2f00; color: #fde68a; }
+.dark .status-archived   { background: #27272a; color: #a1a1aa; }
+
+/* ============================================================
+   ANIMATION SYSTEM
+   All motion is gated behind prefers-reduced-motion: no-preference.
+   Reduced-motion users get fully-visible, static content — no
+   opacity:0 traps, no layout shifts.
+   ============================================================ */
+
+/* Nav scroll shadow — style change only, no motion, lives outside media query */
+.nav-scrolled      { box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10); }
+.dark .nav-scrolled { box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35); }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* --- Keyframes --- */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: -200% center, 0 0; }
+    100% { background-position:  200% center, 0 0; }
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
+    50%       { box-shadow: 0 0 0 5px rgba(37, 99, 235, 0); }
+  }
+
+  /* --- Entrance animation utilities --- */
+  .animate-fade-in-up {
+    animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.45s ease both;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Stagger delay utilities */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-600 { animation-delay: 600ms; }
+
+  /* --- Shimmer placeholder for card covers --- */
+  .shimmer-bg {
+    background:
+      linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.22) 50%,
+        transparent 60%
+      ),
+      linear-gradient(to bottom right, #eff6ff, #f1f5f9);
+    background-size: 200% 100%, 100% 100%;
+    animation: shimmer 2.4s linear infinite;
+  }
+
+  .dark .shimmer-bg {
+    background:
+      linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.06) 50%,
+        transparent 60%
+      ),
+      linear-gradient(to bottom right, #27272a, #18181b);
+    background-size: 200% 100%, 100% 100%;
+    animation: shimmer 2.4s linear infinite;
+  }
+
+  /* --- Scroll-reveal system ---
+     JS toggles .visible when element enters viewport.
+     transition-delay is set via inline style for per-element stagger. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Timeline variant: slides in from left */
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-16px);
+    transition:
+      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Pulse ring for timeline accent dots */
+  .pulse-dot {
+    animation: pulse-dot 2.2s ease-in-out infinite;
+  }
+}

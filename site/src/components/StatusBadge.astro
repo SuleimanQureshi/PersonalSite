@@ -1,0 +1,17 @@
+---
+export interface Props {
+  status: string;
+}
+const { status } = Astro.props;
+
+const labels: Record<string, string> = {
+  published: 'Published',
+  completed: 'Completed',
+  preprint: 'Preprint',
+  'in-progress': 'In Progress',
+  archived: 'Archived',
+};
+
+const label = labels[status] ?? status;
+---
+<span class={`status-badge status-${status}`}>{label}</span>
