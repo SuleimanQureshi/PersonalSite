@@ -9,6 +9,7 @@ tags:
   - quality-control
   - manufacturing
   - deep-learning
+  - industrial-automation
 ---
 
 # Deployment-Oriented Memory-Based Visual Inspection of Injection-Molded Parts

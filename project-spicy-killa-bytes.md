@@ -7,7 +7,6 @@ tags:
   - embedded-systems
   - robotics
   - microcontroller
-  - bluetooth
   - motor-control
   - obstacle-avoidance
   - TivaC

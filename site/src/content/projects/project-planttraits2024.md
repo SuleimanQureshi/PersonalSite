@@ -3,7 +3,7 @@ title: "PlantTraits2024: Understanding Patterns of Global Biodiversity"
 type: paper
 status: completed
 date: 2024-03-24
-tags: [deep-learning, computer-vision, plant-phenotyping, transfer-learning, multi-modal, CLIP, EfficientNet, MobileNet, ecology, kaggle]
+tags: [deep-learning, computer-vision, plant-phenotyping, transfer-learning, CLIP, EfficientNet, MobileNet]
 ---
 
 # PlantTraits2024: Understanding Patterns of Global Biodiversity

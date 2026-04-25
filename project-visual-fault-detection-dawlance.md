@@ -3,7 +3,7 @@ title: "Visual Fault Detection for Plastic Parts (Dawlance)"
 type: project
 status: in-progress
 date: 2025-02-01
-tags: [computer-vision, anomaly-detection, quality-control, manufacturing, deep-learning, PatchCore]
+tags: [computer-vision, anomaly-detection, quality-control, manufacturing, deep-learning, PatchCore, industrial-automation]
 ---
 
 # Visual Fault Detection for Plastic Parts

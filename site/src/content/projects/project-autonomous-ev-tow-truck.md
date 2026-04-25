@@ -3,7 +3,7 @@ title: "Autonomous EV Tow Truck Control System"
 type: project
 status: completed
 date: 2024-12-01
-tags: [robotics, autonomous-vehicles, ROS2, MPPI, PID, embedded-systems, power-electronics]
+tags: [robotics, autonomous-vehicles, ROS2, MPPI, PID, embedded-systems, power-electronics, control-systems, industrial-automation]
 ---
 
 # Autonomous EV Tow Truck Control System

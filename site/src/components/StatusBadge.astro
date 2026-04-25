@@ -14,4 +14,4 @@ const labels: Record<string, string> = {
 
 const label = labels[status] ?? status;
 ---
-<span class={`status-badge status-${status}`}>{label}</span>
+<span class={`status-badge status-${status}`}><span aria-hidden="true">●</span> {label}</span>

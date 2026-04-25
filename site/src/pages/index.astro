@@ -1,197 +1,842 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PaperCard from '../components/PaperCard.astro';
-import ProjectCard from '../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
 
 const allPapers = await getCollection('papers');
 const allProjects = await getCollection('projects');
 
-// Pinned items — the flagship work
-const pinnedPapers = allPapers.filter((p) =>
-  ['paper-visual-inspection-cvc2026', 'paper-pid-mppi-tow-truck-iciea2026'].includes(p.id)
-);
 const pinnedProject = allProjects.find((p) => p.id === 'project-autonomous-ev-tow-truck');
 
-// Extract plain-english summary from body as fallback summary
-function getSummary(body: string | undefined): string | undefined {
-  if (!body) return undefined;
-  const match = body.match(/>\s*([^\n]+)/);
-  return match?.[1]?.trim();
+const sortedPapers = [...allPapers].sort((a, b) =>
+  String(b.data.date).localeCompare(String(a.data.date))
+);
+
+function extractAbstract(body: string): string {
+  const m = body.match(/## Abstract\n\n?([\s\S]+?)(?:\n---|\n##)/);
+  return m?.[1]?.trim() ?? '';
 }
+
+function extractVenue(body: string): string {
+  const m = body.match(/\|\s*\*\*Venue\*\*\s*\|\s*([^|]+)\|/);
+  return m?.[1]?.trim() ?? '—';
+}
+
+function generateBibtex(paper: typeof sortedPapers[number], venue: string): string {
+  const year = String(paper.data.date).slice(0, 4);
+  const firstWord = paper.data.title.split(/\s+/).find(w => w.length > 3) ?? 'work';
+  const key = `qureshi${year}${firstWord.toLowerCase().replace(/[^a-z]/g, '')}`;
+  const type = paper.data.status === 'published' ? '@inproceedings' : '@article';
+  const venueField = venue !== '—' ? `\n  booktitle={${venue}},` : '';
+  return `${type}{${key},
+  title={${paper.data.title}},
+  author={Muhammad Suleiman Qureshi and others},
+  year={${year}},${venueField}
+}`;
+}
+
+const papersWithMeta = sortedPapers.map((paper, i) => {
+  const abstract = extractAbstract(paper.body ?? '');
+  const venue = extractVenue(paper.body ?? '');
+  const bibtex = generateBibtex(paper, venue);
+  const statusColor =
+    paper.data.status === 'published' || paper.data.status === 'completed' ? 'ok-span' :
+    paper.data.status === 'preprint' ? 'blue-span' :
+    paper.data.status === 'in-progress' ? 'warn-span' : 'mute-span';
+  return { paper, abstract, venue, bibtex, statusColor, idx: i };
+});
 ---
 
 <BaseLayout title="Muhammad Suleiman Qureshi">
-  <!-- Hero -->
-  <section class="max-w-4xl mx-auto px-6 pt-16 pb-20">
-    <p class="text-sm font-medium text-[--color-accent] uppercase tracking-widest mb-4 animate-fade-in-up delay-100">Robotics &amp; Automation Engineer</p>
-    <h1 class="font-heading text-5xl sm:text-6xl font-semibold leading-tight text-zinc-900 dark:text-zinc-100 mb-6 animate-fade-in-up delay-200">
-      Muhammad<br />Suleiman Qureshi
-    </h1>
-    <p class="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl leading-relaxed mb-8 animate-fade-in-up delay-300">
-      Building autonomous systems from first principles — from PCB design and system identification
-      to model predictive control and real-time computer vision. Currently leading R&D at
-      <a href="https://habib.edu.pk" target="_blank" rel="noopener" class="text-zinc-900 dark:text-zinc-100 font-medium hover:text-[--color-accent] transition-colors">HU-Takhleeq</a>,
-      Habib University's industry-academia innovation hub.
-    </p>
-    <div class="flex flex-wrap gap-3 animate-fade-in-up delay-400">
-      <a href="/about" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[--color-accent] text-white text-sm font-medium hover:bg-[--color-accent-hover] transition-colors cursor-pointer">
-        About Me
-      </a>
-      <a href="/research" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
-        View Research
-      </a>
-      <a href="/projects" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
-        Browse Projects
-      </a>
-      <a href="/Suleiman_Resume_April_2026.pdf" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Resume
-      </a>
+
+  <!-- ─── HERO ──────────────────────────────────────────────────── -->
+  <section class="hero-grid">
+    <!-- Left: operator profile -->
+    <div class="hero-left">
+      <p class="breadcrumb"># OPERATOR_PROFILE :: role=R&amp;D_LEAD :: domain=ROBOTICS_AUTOMATION</p>
+
+      <h1 class="name">
+        Muhammad<br />Suleiman<br />Qureshi<span class="period">.</span>
+      </h1>
+
+      <div class="description">
+        <p><span class="gt">&gt;</span> building autonomous systems end-to-end &middot; PCB &rarr; sys-ID &rarr; MPC &rarr; real-time CV.</p>
+        <p><span class="gt">&gt;</span> currently leading R&amp;D at <span class="blue">HU-Takhleeq</span> &mdash; Habib University&rsquo;s industry-academia hub.</p>
+        <p><span class="gt">&gt;</span> i like systems with tangible impact<span class="cursor-blink"></span></p>
+      </div>
+
+      <div class="hero-btns">
+        <a href="/contact" class="btn-primary">./contact --open</a>
+        <a href="/Suleiman_Resume_April_2026.pdf" class="btn-secondary">cat resume.pdf</a>
+      </div>
+    </div>
+
+    <!-- Right: 2×2 telemetry panels -->
+    <div class="telemetry-grid">
+      <!-- VELOCITY -->
+      <div class="t-panel" data-metric="velocity">
+        <div class="t-header">
+          <span>VELOCITY</span><span class="t-unit">m/s</span>
+        </div>
+        <div class="t-body">
+          <div class="t-value" data-value><span class="t-num">0.00</span></div>
+          <svg class="sparkline" data-sparkline="velocity" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline class="sp-line" points="" fill="none" stroke="var(--color-ok)" stroke-width="1.25"/>
+            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-ok)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
+            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-ok)" visibility="hidden"/>
+            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
+            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-ok)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- YAW RATE -->
+      <div class="t-panel" data-metric="yaw">
+        <div class="t-header">
+          <span>YAW RATE</span><span class="t-unit">deg/s</span>
+        </div>
+        <div class="t-body">
+          <div class="t-value" data-value><span class="t-num">0.0</span></div>
+          <svg class="sparkline" data-sparkline="yaw" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline class="sp-line" points="" fill="none" stroke="var(--color-blue)" stroke-width="1.25"/>
+            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-blue)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
+            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-blue)" visibility="hidden"/>
+            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
+            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-blue)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- TRACKING ERR -->
+      <div class="t-panel" data-metric="trackerr">
+        <div class="t-header">
+          <span>TRACKING ERR</span><span class="t-unit">m</span>
+        </div>
+        <div class="t-body">
+          <div class="t-value warn-val" data-value><span class="t-num">0.000</span></div>
+          <svg class="sparkline" data-sparkline="trackerr" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline class="sp-line" points="" fill="none" stroke="var(--color-warn)" stroke-width="1.25"/>
+            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-warn)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
+            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-warn)" visibility="hidden"/>
+            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
+            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-warn)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- SYSTEM -->
+      <div class="t-panel">
+        <div class="t-header">
+          <span>SYSTEM</span><span class="t-unit">all</span>
+        </div>
+        <div class="t-body">
+          <div class="sys-status">
+            <div><span class="ok-dot">●</span> mppi_node&nbsp;&nbsp;&nbsp;&nbsp; OK</div>
+            <div><span class="ok-dot">●</span> ekf_localizer OK</div>
+            <div><span class="ok-dot">●</span> can_bridge&nbsp;&nbsp;&nbsp; OK</div>
+            <div><span class="warn-dot">●</span> lidar_0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OK*</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Quick stats bar -->
-  <section class="border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-6">
-    <div class="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-      <div>
-        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="6" data-format="integer">6</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">Papers</p>
-      </div>
-      <div>
-        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="9" data-format="integer">9</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">Projects</p>
-      </div>
-      <div>
-        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="3.88" data-format="decimal">3.88</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">CGPA / 4.0</p>
-      </div>
-      <div>
-        <p class="font-heading text-3xl font-semibold text-zinc-900 dark:text-zinc-100" data-counter="4" data-format="prefix" data-prefix="×">×4</p>
-        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wide">Dean's List</p>
-      </div>
+  <!-- ─── STATS RIBBON ─────────────────────────────────────────── -->
+  <section class="stats-ribbon">
+    <div class="stat-cell">
+      <div class="stat-label">PAPERS</div>
+      <div class="stat-value">06</div>
+      <div class="stat-sub">/ peer-reviewed + preprint</div>
+    </div>
+    <div class="stat-cell stat-bordered">
+      <div class="stat-label">PROJECTS</div>
+      <div class="stat-value">09</div>
+      <div class="stat-sub">/ deployed or live</div>
+    </div>
+    <div class="stat-cell stat-bordered">
+      <div class="stat-label">CGPA</div>
+      <div class="stat-value">3.88</div>
+      <div class="stat-sub">/ 4.00</div>
+    </div>
+    <div class="stat-cell stat-bordered">
+      <div class="stat-label">DEAN&rsquo;S LIST</div>
+      <div class="stat-value">&times;4</div>
+      <div class="stat-sub">/ consecutive</div>
     </div>
   </section>
 
-  <!-- Pinned research -->
-  <section class="max-w-4xl mx-auto px-6 py-16">
-    <div class="flex items-center justify-between mb-8 reveal">
-      <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Selected Research</h2>
-      <a href="/research" class="text-sm text-[--color-accent] hover:underline transition-colors">All papers →</a>
+  <!-- ─── RESEARCH LOG ──────────────────────────────────────────── -->
+  <section class="research-log" id="research">
+    <div class="log-header">
+      <span class="log-title">
+        <span class="mute-span">// </span>research_log<span class="mute-span"> [{allPapers.length}]</span>
+      </span>
+      <span class="log-sort">sort: --date.desc</span>
     </div>
-    <div class="grid sm:grid-cols-2 gap-5">
-      {pinnedPapers.map((paper, i) => (
-        <div class="reveal" style={`transition-delay: ${i * 100}ms`}>
-          <PaperCard
-            title={paper.data.title}
-            slug={paper.id}
-            status={paper.data.status}
-            date={String(paper.data.date)}
-            tags={paper.data.tags}
-            summary={getSummary(paper.body)}
-            cover={paper.data.cover}
-            venue={paper.data.venue}
-          />
+
+    <div class="log-table">
+      <div class="log-cols-header">
+        <span>id</span>
+        <span>TAG</span>
+        <span>year</span>
+        <span>title</span>
+        <span class="log-keys-col">keys</span>
+        <span class="log-chevron-col"></span>
+      </div>
+
+      {papersWithMeta.map(({ paper, abstract, venue, bibtex, statusColor, idx }) => (
+        <div class="log-entry" data-entry-id={paper.id}>
+          <div class="log-row" data-expandable>
+            <span class="mute-span">{String(idx + 1).padStart(2, '0')}</span>
+            <span class={statusColor}>● {paper.data.status.toUpperCase()}</span>
+            <span class="mute-span">{String(paper.data.date).slice(0, 4)}</span>
+            <span class="log-title-cell">{paper.data.title}</span>
+            <span class="log-keys-col mute-span">{paper.data.tags.slice(0, 3).map((t: string) => `#${t}`).join(' ')}</span>
+            <span class="log-chevron">›</span>
+          </div>
+          <div class="log-expanded" hidden>
+            <div class="expanded-left">
+              <div class="expanded-eyebrow">Abstract — {venue} {String(paper.data.date).slice(0, 4)}</div>
+              <div class="expanded-abstract">{abstract || 'No abstract available.'}</div>
+              <div class="expanded-btns">
+                <a href={`/research/${paper.id}`} class="btn-open-paper">open paper ↗</a>
+                <button class="btn-copy-bib" data-bibtex={bibtex}>copy bib</button>
+              </div>
+            </div>
+            <div class="expanded-right">
+              <pre class="expanded-bibtex">{bibtex}</pre>
+            </div>
+          </div>
         </div>
       ))}
     </div>
   </section>
 
-  <!-- Pinned project -->
+  <!-- ─── FLAGSHIP ─────────────────────────────────────────────── -->
   {pinnedProject && (
-    <section class="max-w-4xl mx-auto px-6 pb-16">
-      <div class="flex items-center justify-between mb-8 reveal">
-        <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Flagship Project</h2>
-        <a href="/projects" class="text-sm text-[--color-accent] hover:underline transition-colors">All projects →</a>
+    <section class="flagship" id="flagship" onclick="window.location.href='/projects/project-autonomous-ev-tow-truck'" style="cursor:pointer">
+      <div class="flagship-header">
+        <span><span class="mute-span">// </span>flagship :: <span class="warn-span">ev-tow-01</span></span>
+        
       </div>
-      <div class="reveal" style="transition-delay: 100ms">
-        <ProjectCard
-          title={pinnedProject.data.title}
-          slug={pinnedProject.id}
-          status={pinnedProject.data.status}
-          date={String(pinnedProject.data.date)}
-          tags={pinnedProject.data.tags}
-          summary={getSummary(pinnedProject.body)}
-          cover={pinnedProject.data.cover}
-          collaborator={pinnedProject.data.collaborator}
-        />
+
+      <div class="flagship-grid">
+        <!-- Left: vehicle schematic -->
+        <div class="t-panel schematic-panel">
+          <div class="t-header">
+            <span>VEHICLE · EV-TOW-01</span><span class="t-unit">retrofit</span>
+          </div>
+          <div class="schematic-body stripes-dark">
+            <svg viewBox="0 0 600 260" class="schematic-svg" aria-label="EV Tow Truck top-down schematic">
+              <!-- Chassis -->
+              <rect x="180" y="80" width="240" height="100" fill="none" stroke="var(--color-mute)" stroke-width="1"/>
+              <!-- Cab -->
+              <rect x="210" y="55" width="180" height="25" fill="none" stroke="var(--color-mute)" stroke-width="1"/>
+              <!-- Hitch arm -->
+              <rect x="130" y="120" width="50" height="20" fill="none" stroke="var(--color-mute)" stroke-width="1" stroke-dasharray="4,2"/>
+              <!-- Wheels -->
+              <circle cx="210" cy="185" r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <circle cx="390" cy="185" r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <circle cx="210" cy="75"  r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <circle cx="390" cy="75"  r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <!-- LIDAR -->
+              <circle cx="300" cy="67" r="8" fill="var(--color-warn)"/>
+              <line x1="300" y1="59" x2="300" y2="20" stroke="var(--color-warn)" stroke-width="0.8" stroke-dasharray="3,2"/>
+              <text x="308" y="18" font-size="10" fill="var(--color-warn)" font-family="var(--font-mono)">LIDAR_0</text>
+              <!-- IMU -->
+              <rect x="290" y="120" width="20" height="20" fill="var(--color-blue)"/>
+              <line x1="310" y1="130" x2="370" y2="130" stroke="var(--color-blue)" stroke-width="0.8" stroke-dasharray="3,2"/>
+              <text x="374" y="134" font-size="10" fill="var(--color-blue)" font-family="var(--font-mono)">IMU</text>
+              <!-- CAM -->
+              <rect x="410" y="117" width="14" height="26" fill="var(--color-ok)"/>
+              <line x1="424" y1="130" x2="480" y2="130" stroke="var(--color-ok)" stroke-width="0.8" stroke-dasharray="3,2"/>
+              <text x="484" y="134" font-size="10" fill="var(--color-ok)" font-family="var(--font-mono)">CAM</text>
+              <!-- Captions -->
+              <text x="185" y="245" font-size="10" fill="var(--color-mute)" font-family="var(--font-mono)">fig. 01 — sensor layout (top)</text>
+              <text x="490" y="245" font-size="10" fill="var(--color-mute)" font-family="var(--font-mono)">scale 1:24</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Right: stacked panels -->
+        <div class="flagship-right">
+          <div class="t-panel">
+            <div class="t-header"><span>CONTROL STACK</span></div>
+            <div class="t-body control-stack">
+              <div><span class="mute-span">│</span> OUTER&nbsp;&nbsp; <span>MPPI (N=1024, H=30)</span></div>
+              <div><span class="mute-span">├──</span>&nbsp;&nbsp;&nbsp;&nbsp; COST&nbsp;&nbsp;&nbsp; tracking + obstacle + smoothness</div>
+              <div><span class="mute-span">│</span></div>
+              <div><span class="mute-span">│</span> INNER&nbsp;&nbsp; <span>PID (v, δ)</span></div>
+              <div><span class="mute-span">├──</span>&nbsp;&nbsp;&nbsp;&nbsp; RATE&nbsp;&nbsp;&nbsp; 100 Hz</div>
+              <div><span class="mute-span">│</span></div>
+              <div><span class="mute-span">│</span> PLANT&nbsp;&nbsp; <span>system-ID&rsquo;d 2DOF bicycle</span></div>
+            </div>
+          </div>
+
+          <div class="t-panel">
+            <div class="t-header"><span>IMPACT</span></div>
+            <div class="t-body impact-body">
+              Operational and moving towards final deployment. Full-stack: custom PCB, sys-ID, hierarchical control,
+              and a real-time perception pipeline. First autonomous retrofit to run on this
+              class of vehicle in PK industry.
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )}
 
-  <!-- Contact strip -->
-  <section class="bg-zinc-900 dark:bg-zinc-950 text-white py-14 px-6">
-    <div class="max-w-4xl mx-auto text-center reveal">
-      <h2 class="font-heading text-3xl font-semibold mb-3">Let's work together</h2>
-      <p class="text-zinc-400 mb-8 max-w-md mx-auto">Open to research collaborations, industry partnerships, and interesting problems in robotics and automation.</p>
-      <a href="/contact" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[--color-accent] text-white text-sm font-medium hover:bg-[--color-accent-hover] transition-colors cursor-pointer">
-        Get in touch
-      </a>
-    </div>
-  </section>
 </BaseLayout>
 
 <script>
+  // ── Live telemetry — requestAnimationFrame, ~12 Hz ────────────────
   (function () {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const counters = document.querySelectorAll<HTMLElement>('[data-counter]');
-    if (!counters.length) return;
+    const METRICS: Record<string, { min: number; max: number; decimals: number; fmt: (v: number) => string }> = {
+      velocity: { min: 0,   max: 1,   decimals: 2, fmt: v => (v * 3).toFixed(2) },
+      yaw:      { min: 0,   max: 1,   decimals: 1, fmt: v => ((v - 0.5) * 24).toFixed(1) },
+      trackerr: { min: 0,   max: 1,   decimals: 3, fmt: v => v.toFixed(3) },
+    };
+    const HISTORY = 80;
+    const W = 180, H = 36;
+    const FRAME_MS = 1000 / 12;
 
-    const DURATION = 1400;
+    const data: Record<string, number[]> = {};
+    const targets: Record<string, number> = {};
 
-    function easeOut(t: number): number {
-      return 1 - Math.pow(1 - t, 3);
+    Object.keys(METRICS).forEach((k) => {
+      data[k] = Array.from({ length: HISTORY }, () => Math.random());
+      targets[k] = Math.random();
+    });
+
+    // Cache DOM
+    const svgEls: Record<string, SVGSVGElement | null> = {};
+    const polylines: Record<string, SVGPolylineElement | null> = {};
+    const valueEls: Record<string, Element | null> = {};
+
+    Object.keys(METRICS).forEach((k) => {
+      const svg = document.querySelector<SVGSVGElement>(`[data-sparkline="${k}"]`);
+      svgEls[k] = svg ?? null;
+      polylines[k] = svg?.querySelector('.sp-line') ?? null;
+      const panel = document.querySelector(`[data-metric="${k}"]`);
+      valueEls[k] = panel?.querySelector('.t-num') ?? null;
+    });
+
+    // Display value labels also need the original metric range for display
+    const DISPLAY_METRICS: Record<string, { min: number; max: number; decimals: number }> = {
+      velocity: { min: 0, max: 3,   decimals: 2 },
+      yaw:      { min: -5, max: 5,  decimals: 1 },
+      trackerr: { min: 0, max: 0.3, decimals: 3 },
+    };
+
+    let lastFrame = 0;
+
+    function tick(ts: number) {
+      requestAnimationFrame(tick);
+      if (ts - lastFrame < FRAME_MS) return;
+      lastFrame = ts;
+
+      Object.keys(METRICS).forEach((k) => {
+        if (reduced) return; // freeze series on reduced motion
+
+        const current = data[k][data[k].length - 1];
+        if (Math.abs(current - targets[k]) < 0.04 || Math.random() < 0.018) {
+          targets[k] = Math.random();
+        }
+        const next = current + (targets[k] - current) * 0.08 + (Math.random() - 0.5) * 0.03;
+        data[k].push(Math.min(1, Math.max(0, next)));
+        if (data[k].length > HISTORY) data[k].shift();
+
+        // Update sparkline polyline
+        if (polylines[k]) {
+          const pts = data[k].map((v, i) => {
+            const x = (i / (HISTORY - 1)) * W;
+            const y = H - v * H;
+            return `${x.toFixed(1)},${y.toFixed(1)}`;
+          }).join(' ');
+          polylines[k]!.setAttribute('points', pts);
+        }
+
+        // Update display value
+        if (valueEls[k]) {
+          const dm = DISPLAY_METRICS[k];
+          const raw = data[k][data[k].length - 1];
+          const displayed = dm.min + raw * (dm.max - dm.min);
+          valueEls[k]!.textContent = displayed.toFixed(dm.decimals);
+        }
+      });
     }
 
-    function animateCounter(el: HTMLElement) {
-      const target = parseFloat(el.dataset.counter ?? '0');
-      const format = el.dataset.format ?? 'integer';
-      const prefix = el.dataset.prefix ?? '';
-      const start = performance.now();
+    requestAnimationFrame(tick);
 
-      function tick(now: number) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / DURATION, 1);
-        const value = target * easeOut(progress);
+    // ── Scrubbable sparklines ──────────────────────────────────────
+    Object.keys(METRICS).forEach((k) => {
+      const svg = svgEls[k];
+      if (!svg) return;
+      const guide   = svg.querySelector('.sp-guide') as SVGLineElement;
+      const dot     = svg.querySelector('.sp-dot') as SVGCircleElement;
+      const tipBox  = svg.querySelector('.sp-tip-box') as SVGRectElement;
+      const tipTxt  = svg.querySelector('.sp-tip-txt') as SVGTextElement;
 
-        if (format === 'decimal') {
-          el.textContent = value.toFixed(2);
-        } else if (format === 'prefix') {
-          el.textContent = prefix + Math.round(value).toString();
-        } else {
-          el.textContent = Math.round(value).toString();
-        }
+      function showHover(normX: number) {
+        const i = Math.round(normX * (data[k].length - 1));
+        const clamped = Math.max(0, Math.min(data[k].length - 1, i));
+        const v = data[k][clamped];
+        const vbX = normX * W;
+        const vbY = H - v * H;
 
-        if (progress < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          // Snap to exact final value
-          if (format === 'decimal') el.textContent = target.toFixed(2);
-          else if (format === 'prefix') el.textContent = prefix + target.toString();
-          else el.textContent = target.toString();
-        }
+        guide.setAttribute('x1', String(vbX));
+        guide.setAttribute('x2', String(vbX));
+        guide.setAttribute('visibility', 'visible');
+
+        dot.setAttribute('cx', String(vbX));
+        dot.setAttribute('cy', String(vbY));
+        dot.setAttribute('visibility', 'visible');
+
+        const tipX = Math.min(vbX + 4, W - 50);
+        tipBox.setAttribute('x', String(tipX));
+        tipBox.setAttribute('visibility', 'visible');
+
+        tipTxt.setAttribute('x', String(tipX + 4));
+        tipTxt.textContent = METRICS[k].fmt(v);
+        tipTxt.setAttribute('visibility', 'visible');
       }
 
-      requestAnimationFrame(tick);
-    }
+      function hideHover() {
+        [guide, dot, tipBox, tipTxt].forEach(el => el?.setAttribute('visibility', 'hidden'));
+      }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            animateCounter(entry.target as HTMLElement);
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
+      svg.addEventListener('mousemove', (e) => {
+        const r = svg.getBoundingClientRect();
+        const normX = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+        showHover(normX);
+      });
 
-    counters.forEach((el) => observer.observe(el));
+      svg.addEventListener('mouseleave', hideHover);
+    });
+  })();
+
+  // ── Expandable research rows ──────────────────────────────────────
+  (function () {
+    let openId: string | null = null;
+
+    document.querySelectorAll<HTMLElement>('.log-entry').forEach((entry) => {
+      const row      = entry.querySelector<HTMLElement>('.log-row');
+      const expanded = entry.querySelector<HTMLElement>('.log-expanded');
+      const chevron  = entry.querySelector<HTMLElement>('.log-chevron');
+      const id       = entry.dataset.entryId ?? '';
+
+      row?.addEventListener('click', () => {
+        const isOpen = openId === id;
+
+        // Close currently open row
+        if (openId) {
+          const prev = document.querySelector<HTMLElement>(`[data-entry-id="${openId}"] .log-expanded`);
+          const prevChev = document.querySelector<HTMLElement>(`[data-entry-id="${openId}"] .log-chevron`);
+          if (prev) prev.hidden = true;
+          if (prevChev) prevChev.style.transform = '';
+        }
+
+        if (isOpen) {
+          openId = null;
+        } else {
+          openId = id;
+          if (expanded) expanded.hidden = false;
+          if (chevron) chevron.style.transform = 'rotate(90deg)';
+        }
+      });
+
+      // Copy bib button
+      entry.querySelector<HTMLButtonElement>('.btn-copy-bib')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const bib = (e.currentTarget as HTMLButtonElement).dataset.bibtex ?? '';
+        navigator.clipboard.writeText(bib).catch(() => {});
+        const btn = e.currentTarget as HTMLButtonElement;
+        const orig = btn.textContent;
+        btn.textContent = 'copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+    });
   })();
 </script>
 
 <style>
-  .font-heading { font-family: var(--font-heading); }
+  /* Hero */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    padding: 32px 28px;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .breadcrumb {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .name {
+    font-size: 84px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -2.5px;
+    line-height: 1.0;
+    color: var(--color-text);
+    margin: 0 0 22px;
+  }
+
+  .period { color: var(--color-warn); }
+
+  .description {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .description p { margin: 0; }
+
+  .gt { color: var(--color-text); }
+  .blue { color: var(--color-blue); }
+
+  .hero-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    text-decoration: none;
+    border: 1px solid var(--color-text);
+    transition: opacity 0.1s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-secondary {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--color-text);
+    text-decoration: none;
+    border: 1px solid var(--color-line);
+    transition: border-color 0.1s;
+  }
+  .btn-secondary:hover { border-color: var(--color-mute); }
+
+  /* Telemetry cluster */
+  .telemetry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--color-line);
+    align-content: start;
+  }
+
+  .t-panel {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .t-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--color-line);
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+
+  .t-unit { color: var(--color-mute); }
+
+  .t-body {
+    padding: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .t-value {
+    font-size: 32px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1;
+  }
+
+  .warn-val .t-num { color: var(--color-warn); }
+
+  .sparkline {
+    width: 100%;
+    height: 44px;
+    display: block;
+  }
+
+  .sys-status {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    line-height: 1.9;
+  }
+
+  .ok-dot   { color: var(--color-ok); }
+  .warn-dot { color: var(--color-warn); }
+
+  /* Stats ribbon */
+  .stats-ribbon {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--color-line);
+    margin: 0 28px;
+  }
+
+  .stat-cell {
+    padding: 18px;
+  }
+
+  .stat-bordered {
+    border-left: 1px solid var(--color-line);
+  }
+
+  .stat-label {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+
+  .stat-value {
+    font-size: 36px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+
+  .stat-sub {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    margin-top: 4px;
+  }
+
+  /* Research log */
+  .research-log {
+    padding: 36px 28px 0;
+  }
+
+  .log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+  }
+
+  .log-title {
+    font-size: 13px;
+    color: var(--color-text);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .log-sort {
+    font-size: 10px;
+    color: var(--color-mute);
+  }
+
+  .log-table {
+    border: 1px solid var(--color-line);
+  }
+
+  .log-cols-header,
+  .log-row {
+    display: grid;
+    grid-template-columns: 3rem 7rem 3.5rem 1fr 10rem 1.5rem;
+    padding: 7px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    gap: 0;
+  }
+
+  .log-cols-header {
+    font-size: 9px;
+    color: var(--color-mute);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-bg);
+  }
+
+  .log-entry {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .log-row {
+    color: var(--color-mute);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  .log-row:hover {
+    background: var(--color-panel-hi);
+  }
+
+  .log-title-cell {
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 12px;
+  }
+
+  .log-row:hover .log-title-cell {
+    color: var(--color-blue);
+  }
+
+  .log-keys-col {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .log-chevron-col {
+    width: 1.5rem;
+  }
+
+  .log-chevron {
+    color: var(--color-mute);
+    text-align: center;
+    display: inline-block;
+    transition: transform 0.15s;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* Color helpers */
+  .ok-span   { color: var(--color-ok); }
+  .warn-span { color: var(--color-warn); }
+  .blue-span { color: var(--color-blue); }
+  .mute-span { color: var(--color-mute); }
+
+  /* Flagship */
+  .flagship {
+    padding: 36px 28px 40px;
+  }
+
+  .flagship-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .flagship-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1px;
+    background: var(--color-line);
+  }
+
+  .schematic-panel {
+    min-height: 280px;
+  }
+
+  .schematic-body {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: oklch(0.18 0.01 250);
+    border: 1px dashed var(--color-line);
+  }
+
+  .schematic-svg {
+    width: 100%;
+    max-height: 220px;
+  }
+
+  .flagship-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--color-line);
+  }
+
+  .control-stack {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
+  .control-stack div { white-space: pre; }
+
+  .impact-body {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    line-height: 1.6;
+    padding: 14px;
+  }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .name { font-size: 56px; }
+    .flagship-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-grid { padding: 20px 16px; }
+    .name { font-size: 40px; letter-spacing: -1.5px; }
+    .stats-ribbon {
+      grid-template-columns: repeat(2, 1fr);
+      margin: 0 16px;
+    }
+    .research-log { padding: 24px 16px 0; }
+    .flagship { padding: 24px 16px 32px; }
+    .log-keys-col { display: none; }
+    .log-cols-header,
+    .log-row { grid-template-columns: 2.5rem 5.5rem 3rem 1fr 1.5rem; }
+  }
 </style>

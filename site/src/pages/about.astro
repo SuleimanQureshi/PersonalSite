@@ -6,12 +6,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   title="About"
   description="Robotics and automation engineer — background, experience, and skills."
 >
-  <article class="max-w-3xl mx-auto px-6 py-12">
-    <h1 class="font-heading text-4xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">About</h1>
-    <p class="text-zinc-500 dark:text-zinc-400 mb-10">Karachi, Sindh, Pakistan</p>
+  <article class="page-wrap">
+    <div class="page-header">
+      <h1 class="page-title"><span class="mute">// </span>about</h1>
+      <p class="page-desc">karachi, sindh, pakistan</p>
+    </div>
 
     <!-- Bio -->
-    <div class="prose dark:prose-invert max-w-none mb-14 reveal">
+    <div class="prose dark:prose-invert max-w-none section-block reveal">
       <p>
         Robotics and automation engineer with hands-on experience building autonomous systems from
         first principles — from system identification and PID tuning to model predictive control
@@ -30,9 +32,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </p>
     </div>
 
-    <!-- Timeline -->
-    <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6 reveal">Experience</h2>
-    <ol class="relative border-l border-zinc-200 dark:border-zinc-700 mb-14 space-y-8">
+    <!-- Experience -->
+    <h2 class="section-heading reveal"><span class="mute">// </span>experience</h2>
+    <ol class="timeline">
       {([
         {
           role: 'Assistant Manager – R&D',
@@ -67,7 +69,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           org: 'Habib University',
           period: 'Jan 2021 – Apr 2024',
           bullets: [
-            'DS&A, Programming Fundamentals, Signals & Systems, Digital Logic & Design.',
+            'DSA, Programming Fundamentals, Signals & Systems, Digital Logic & Design.',
             'Assisted 100+ students across 4 courses.',
           ],
         },
@@ -80,7 +82,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ],
         },
         {
-          role: 'IEEE Chapter Lead — CS&E Club',
+          role: 'IEEE Chapter Student Lead',
           org: 'Habib University',
           period: 'Mar 2023 – Mar 2024',
           bullets: [
@@ -88,17 +90,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ],
         },
       ] as const).map((item, i) => (
-        <li class="relative ml-6 reveal-left" style={`transition-delay: ${i * 80}ms`}>
-          <span class="absolute -left-[1.625rem] top-1.5 h-3 w-3 rounded-full border-2 border-[--color-accent] bg-white dark:bg-zinc-900 pulse-dot"></span>
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-1">
-            <h3 class="font-heading text-lg font-semibold text-zinc-900 dark:text-zinc-100">{item.role}</h3>
-            <span class="text-sm text-zinc-500 dark:text-zinc-400">{item.org}</span>
+        <li class="timeline-item reveal-left" style={`transition-delay: ${i * 80}ms`}>
+          <span class="timeline-dot pulse-dot"></span>
+          <div class="timeline-meta">
+            <span class="timeline-role">{item.role}</span>
+            <span class="timeline-org">{item.org}</span>
           </div>
-          <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-2">{item.period}</p>
-          <ul class="space-y-1">
+          <p class="timeline-period">{item.period}</p>
+          <ul class="timeline-bullets">
             {item.bullets.map((b) => (
-              <li class="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-400 dark:bg-zinc-500"></span>
+              <li class="timeline-bullet">
+                <span class="bullet-dot" aria-hidden="true">›</span>
                 <span>{b}</span>
               </li>
             ))}
@@ -108,26 +110,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </ol>
 
     <!-- Education -->
-    <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6 reveal">Education</h2>
-    <div class="space-y-5 mb-14">
-      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 reveal" style="transition-delay: 0ms">
-        <div class="flex flex-wrap items-baseline gap-x-3 mb-1">
-          <h3 class="font-heading text-lg font-semibold text-zinc-900 dark:text-zinc-100">B.S. Electrical Engineering</h3>
-          <span class="text-sm text-zinc-500">Minor: Computer Science</span>
+    <h2 class="section-heading reveal"><span class="mute">// </span>education</h2>
+    <div class="cards-stack">
+      <div class="info-card reveal" style="transition-delay: 0ms">
+        <div class="card-row">
+          <span class="card-primary">B.S. Electrical Engineering</span>
+          <span class="card-secondary">Minor: Computer Science</span>
         </div>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-1">Habib University · Aug 2020 – Dec 2024</p>
-        <p class="text-sm font-medium text-[--color-accent]">CGPA 3.88 / 4.00 · Dean's List ×4</p>
+        <p class="card-sub">Habib University · Aug 2020 – Dec 2024</p>
+        <p class="card-accent">CGPA 3.88 / 4.00 · Dean&rsquo;s List &times;4</p>
       </div>
-      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 reveal" style="transition-delay: 100ms">
-        <h3 class="font-heading text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">High School Diploma — Science</h3>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-1">International School of Choueifat – Al Ain · 2007 – 2020</p>
-        <p class="text-sm font-medium text-[--color-accent]">95 / 100 · AP Scholar with Distinction</p>
+      <div class="info-card reveal" style="transition-delay: 100ms">
+        <span class="card-primary">High School Diploma — Science</span>
+        <p class="card-sub">International School of Choueifat – Al Ain · 2007 – 2020</p>
+        <p class="card-accent">95 / 100 · AP Scholar with Distinction</p>
       </div>
     </div>
 
     <!-- Skills -->
-    <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-6 reveal">Technical Skills</h2>
-    <div class="grid sm:grid-cols-2 gap-4 mb-14">
+    <h2 class="section-heading reveal"><span class="mute">// </span>technical_skills</h2>
+    <div class="skills-grid">
       {[
         { category: 'Programming', skills: ['Python', 'C++', 'MATLAB', 'Bash'] },
         { category: 'Robotics & Control', skills: ['ROS2', 'NAV2', 'PID', 'MPC', 'MPPI', 'EtherCAT/SOEM', 'System Identification'] },
@@ -135,9 +137,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         { category: 'Simulation & Tools', skills: ['Gazebo', 'Simulink', 'LabVIEW', 'LTspice'] },
         { category: 'Embedded Systems', skills: ['Arduino', 'FPGA', 'TivaC', 'Raspberry Pi', 'Custom PCB Design'] },
       ].map((group, i) => (
-        <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 reveal" style={`transition-delay: ${i * 70}ms`}>
-          <p class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">{group.category}</p>
-          <div class="flex flex-wrap gap-1.5">
+        <div class="skill-card reveal" style={`transition-delay: ${i * 70}ms`}>
+          <p class="skill-cat">{group.category}</p>
+          <div class="skill-tags">
             {group.skills.map((s) => <span class="tag-pill">{s}</span>)}
           </div>
         </div>
@@ -145,33 +147,275 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
 
     <!-- Languages -->
-    <h2 class="font-heading text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4 reveal">Languages</h2>
-    <div class="flex flex-wrap gap-3 mb-12 reveal" style="transition-delay: 80ms">
+    <h2 class="section-heading reveal"><span class="mute">// </span>languages</h2>
+    <div class="lang-row reveal" style="transition-delay: 80ms">
       {[
         { lang: 'English', level: 'Native / Bilingual' },
         { lang: 'Urdu', level: 'Native' },
         { lang: 'Arabic', level: 'Elementary' },
         { lang: 'French', level: 'Elementary' },
       ].map(({ lang, level }) => (
-        <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2.5 text-sm">
-          <span class="font-medium text-zinc-900 dark:text-zinc-100">{lang}</span>
-          <span class="ml-2 text-zinc-500 dark:text-zinc-400">{level}</span>
+        <div class="lang-card">
+          <span class="lang-name">{lang}</span>
+          <span class="lang-level">{level}</span>
         </div>
       ))}
     </div>
 
-    <!-- Resume download -->
-    <a
-      href="/Suleiman_Resume_April_2026.pdf"
-      class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[--color-accent] text-white text-sm font-medium hover:bg-[--color-accent-hover] transition-colors cursor-pointer reveal"
-      style="transition-delay: 100ms"
-    >
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download Resume (PDF)
+    <!-- Resume -->
+    <a href="/Suleiman_Resume_April_2026.pdf" class="btn-primary reveal" style="transition-delay: 100ms">
+      cat resume.pdf
     </a>
   </article>
 </BaseLayout>
 
 <style>
-  .font-heading { font-family: var(--font-heading); }
+  .page-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 28px 60px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0 0 6px;
+  }
+
+  .page-desc {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    margin: 0;
+    letter-spacing: 0.04em;
+  }
+
+  .mute { color: var(--color-mute); }
+
+  .section-block {
+    margin-bottom: 40px;
+  }
+
+  .section-heading {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--color-text);
+    letter-spacing: 0.06em;
+    margin: 36px 0 16px;
+    text-transform: uppercase;
+  }
+
+  /* Timeline */
+  .timeline {
+    list-style: none;
+    margin: 0 0 40px;
+    padding: 0;
+    border-left: 1px solid var(--color-line);
+    padding-left: 24px;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -30px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--color-ok);
+    background: var(--color-bg);
+    display: block;
+  }
+
+  .timeline-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+
+  .timeline-role {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .timeline-org {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+  }
+
+  .timeline-period {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    margin: 0 0 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .timeline-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .timeline-bullet {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .bullet-dot {
+    color: var(--color-line);
+    flex-shrink: 0;
+  }
+
+  /* Education / info cards */
+  .cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--color-line);
+    margin-bottom: 40px;
+  }
+
+  .info-card {
+    background: var(--color-panel);
+    padding: 16px;
+    border: 1px solid var(--color-line);
+  }
+
+  .card-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+
+  .card-primary {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .card-secondary {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+  }
+
+  .card-sub {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    margin: 0 0 4px;
+  }
+
+  .card-accent {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-ok);
+    margin: 0;
+  }
+
+  /* Skills */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--color-line);
+    margin-bottom: 40px;
+  }
+
+  .skill-card {
+    background: var(--color-panel);
+    padding: 14px;
+    border: 1px solid var(--color-line);
+  }
+
+  .skill-cat {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+    margin: 0 0 8px;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* Languages */
+  .lang-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    background: var(--color-line);
+    margin-bottom: 36px;
+  }
+
+  .lang-card {
+    background: var(--color-panel);
+    padding: 10px 16px;
+    border: 1px solid var(--color-line);
+    font-family: var(--font-mono);
+  }
+
+  .lang-name {
+    font-size: 12px;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .lang-level {
+    font-size: 10px;
+    color: var(--color-mute);
+    margin-left: 8px;
+  }
+
+  /* Resume button */
+  .btn-primary {
+    display: inline-block;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    text-decoration: none;
+    border: 1px solid var(--color-text);
+    transition: opacity 0.1s;
+    cursor: pointer;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  @media (max-width: 640px) {
+    .page-wrap { padding: 20px 16px 40px; }
+    .skills-grid { grid-template-columns: 1fr; }
+  }
 </style>

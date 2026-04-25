@@ -14,14 +14,11 @@ const {
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
-
-const navLinkBase = 'text-sm font-medium transition-colors';
-const navActive   = 'text-zinc-900 dark:text-zinc-100 underline decoration-[--color-accent] decoration-2 underline-offset-4';
-const navInactive = 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100';
+const buildTime = new Date().toISOString();
 
 function navClass(href: string): string {
   const active = href === '/' ? currentPath === '/' : currentPath.startsWith(href);
-  return `${navLinkBase} ${active ? navActive : navInactive}`;
+  return active ? 'topbar-link topbar-link--active' : 'topbar-link';
 }
 
 const siteTitle = title === 'Muhammad Suleiman Qureshi'
@@ -29,7 +26,7 @@ const siteTitle = title === 'Muhammad Suleiman Qureshi'
   : `${title} — Muhammad Suleiman Qureshi`;
 ---
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="dark scroll-smooth" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,94 +42,282 @@ const siteTitle = title === 'Muhammad Suleiman Qureshi'
   <title>{siteTitle}</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-  <!-- Preconnect for Google Fonts -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-
-  <!-- Dark mode init: prevent flash -->
-  <script is:inline>
-    (function () {
-      const stored = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (stored === 'dark' || (!stored && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-  </script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" />
 </head>
-<body class="bg-[--color-bg] dark:bg-[--color-bg-dark] text-[--color-text] dark:text-[--color-text-dark] min-h-screen">
-  <nav id="main-nav" class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 rounded-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur border border-zinc-200 dark:border-zinc-800 shadow-sm transition-shadow duration-200">
-    <a href="/" class="font-heading text-lg font-semibold tracking-tight hover:text-[--color-accent] transition-colors">
-      Suleiman
-    </a>
-    <div class="flex items-center gap-6">
-      <a href="/research" class={navClass('/research')}>Research</a>
-      <a href="/projects" class={navClass('/projects')}>Projects</a>
-      <a href="/about"    class={navClass('/about')}>About</a>
-      <a href="/contact"  class={navClass('/contact')}>Contact</a>
-      <!-- Theme toggle -->
-      <button
-        id="theme-toggle"
-        aria-label="Toggle dark mode"
-        class="cursor-pointer p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-      >
-        <!-- Sun icon (shown in dark mode) -->
-        <svg id="icon-sun" class="hidden dark:block w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-        <!-- Moon icon (shown in light mode) -->
-        <svg id="icon-moon" class="block dark:hidden w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-        </svg>
-      </button>
-    </div>
-  </nav>
+<body class="min-h-screen">
 
-  <main class="pt-24">
+  <!-- CRT scanlines overlay (only visible in crt theme) -->
+  <div id="crt-overlay" aria-hidden="true"></div>
+
+  <!-- Scroll-progress hairline -->
+  <div class="scroll-hairline" aria-hidden="true">
+    <div class="scroll-hairline-fill" id="scroll-fill"></div>
+  </div>
+
+  <header id="top" data-built={buildTime} class="topbar">
+    <div class="topbar-left">
+      <span><strong>SQ</strong> <span class="mute">/ control</span></span>
+      <span class="divider">│</span>
+      <span class="online">● ONLINE</span>
+      <span class="divider">│</span>
+      <span class="mute">uptime <span id="uptime-val">00:00:00</span></span>
+      <span class="divider">│</span>
+      <span class="mute">scroll <span id="scroll-pct">0</span>%</span>
+      <span class="divider">│</span>
+      <span class="mute">last key <span class="kbd-chip" id="last-key-chip">—</span></span>
+    </div>
+    <nav class="topbar-nav">
+      <a href="/"         class={navClass('/')}>OVERVIEW</a>
+      <a href="/research" class={navClass('/research')}>RESEARCH</a>
+      <a href="/projects" class={navClass('/projects')}>PROJECTS</a>
+      <a href="/about"    class={navClass('/about')}>ABOUT</a>
+      <a href="/contact"  class={navClass('/contact')}>CONTACT</a>
+    </nav>
+  </header>
+
+  <main>
     <slot />
   </main>
 
-  <footer class="mt-24 border-t border-zinc-200 dark:border-zinc-800 py-8 px-6 text-center text-sm text-zinc-500 dark:text-zinc-500">
-    <p>Muhammad Suleiman Qureshi · Karachi, Pakistan</p>
-    <div class="flex justify-center gap-5 mt-3">
-      <a href="https://www.linkedin.com/in/msuleimanqureshi" target="_blank" rel="noopener" class="hover:text-[--color-accent] transition-colors" aria-label="LinkedIn">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-      </a>
-      <a href="mailto:mohammadsulaiman500@gmail.com" class="hover:text-[--color-accent] transition-colors" aria-label="Email">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      </a>
-    </div>
-    <p class="mt-4 text-xs text-zinc-400">Built with Astro · <a href="/Suleiman_Resume_April_2026.pdf" class="hover:text-[--color-accent]">Download Resume</a></p>
+  <footer class="site-footer">
+    <span>SQ@ 2026 &middot; karachi, pk</span>
+    <span>$ uptime &amp; thanks &mdash; shell closed</span>
   </footer>
 
-  <script>
-    document.getElementById('theme-toggle')?.addEventListener('click', () => {
-      const html = document.documentElement;
-      const isDark = html.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
+  <!-- Command palette -->
+  <div id="palette-overlay" class="palette-overlay" hidden>
+    <div class="palette-box">
+      <div class="palette-header">
+        <span class="palette-prompt">$</span>
+        <input
+          id="palette-input"
+          class="palette-input"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="type a command — e.g. 'go research', 'theme light', 'help'"
+        />
+        <span class="palette-esc">esc</span>
+      </div>
+      <div class="palette-results" id="palette-results"></div>
+    </div>
+  </div>
 
-    // Nav shadow on scroll
+  <!-- Help HUD -->
+  <div id="help-overlay" class="help-overlay" hidden>
+    <div class="help-box">
+      <div class="help-title"><span>?</span> keyboard shortcuts</div>
+      <table class="help-table">
+        <tbody>
+          <tr>
+            <td><kbd class="kbd-chip">/</kbd> <kbd class="kbd-chip">:</kbd></td>
+            <td>open command palette</td>
+          </tr>
+          <tr>
+            <td><kbd class="kbd-chip">?</kbd></td>
+            <td>toggle this help HUD</td>
+          </tr>
+          <tr>
+            <td><kbd class="kbd-chip">Esc</kbd></td>
+            <td>close overlays</td>
+          </tr>
+          <tr>
+            <td><kbd class="kbd-chip">g</kbd> <kbd class="kbd-chip">r</kbd></td>
+            <td>go to research log</td>
+          </tr>
+          <tr>
+            <td><kbd class="kbd-chip">g</kbd> <kbd class="kbd-chip">f</kbd></td>
+            <td>go to flagship project</td>
+          </tr>
+          <tr>
+            <td><kbd class="kbd-chip">g</kbd> <kbd class="kbd-chip">t</kbd></td>
+            <td>go to top</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="help-footer">$ esc to close</div>
+    </div>
+  </div>
+
+  <script>
+    // ── Theme ────────────────────────────────────────────────────────
     (function () {
-      const nav = document.getElementById('main-nav');
-      if (!nav) return;
-      let ticking = false;
-      window.addEventListener('scroll', () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            nav.classList.toggle('nav-scrolled', window.scrollY > 20);
-            ticking = false;
-          });
-          ticking = true;
-        }
-      }, { passive: true });
+      const saved = localStorage.getItem('sq.theme') as 'dark' | 'light' | 'crt' | null;
+      if (saved && saved !== 'dark') {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
     })();
 
-    // Scroll-reveal
+    function setTheme(t: 'dark' | 'light' | 'crt') {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('sq.theme', t);
+    }
+
+    // ── Uptime (from page mount) ──────────────────────────────────────
+    (function () {
+      const val = document.getElementById('uptime-val');
+      if (!val) return;
+      const start = Date.now();
+      function fmt(s: number) {
+        return [
+          String(Math.floor(s / 3600)).padStart(2, '0'),
+          String(Math.floor(s / 60) % 60).padStart(2, '0'),
+          String(s % 60).padStart(2, '0'),
+        ].join(':');
+      }
+      function tick() {
+        val!.textContent = fmt(Math.floor((Date.now() - start) / 1000));
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // ── Scroll progress ───────────────────────────────────────────────
+    (function () {
+      const fill = document.getElementById('scroll-fill');
+      const pct  = document.getElementById('scroll-pct');
+      function onScroll() {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+        if (fill) fill.style.width = `${ratio * 100}%`;
+        if (pct) pct.textContent = String(Math.round(ratio * 100));
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    // ── Last key ──────────────────────────────────────────────────────
+    (function () {
+      const chip = document.getElementById('last-key-chip');
+      if (!chip) return;
+      const RECORD = new Set(['/', ':', '?', 'Enter', 'Escape', ' ']);
+      document.addEventListener('keydown', (e) => {
+        const t = e.target as HTMLElement;
+        if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') return;
+        const k = e.key;
+        if (k.length === 1 || RECORD.has(k)) {
+          chip.textContent = k === ' ' ? '␣' : k;
+        }
+      });
+    })();
+
+    // ── Command palette ───────────────────────────────────────────────
+    const COMMANDS = [
+      { key: 'go research',  desc: 'jump to research log',   run: () => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' }) },
+      { key: 'go flagship',  desc: 'jump to flagship project', run: () => document.getElementById('flagship')?.scrollIntoView({ behavior: 'smooth' }) },
+      { key: 'go top',       desc: 'jump to top',             run: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+      { key: 'open contact', desc: 'navigate to /contact',    run: () => { window.location.href = '/contact'; } },
+      { key: 'cat resume',   desc: 'open resume.pdf',         run: () => window.open('/Suleiman_Resume_April_2026.pdf', '_blank') },
+      { key: 'theme dark',   desc: 'default theme',           run: () => setTheme('dark') },
+      { key: 'theme light',  desc: 'paper / light mode',      run: () => setTheme('light') },
+      { key: 'theme crt',    desc: 'phosphor / scanline mode', run: () => setTheme('crt') },
+      { key: 'help',         desc: 'show keyboard shortcuts',  run: () => openHelp() },
+    ];
+
+    const paletteOverlay = document.getElementById('palette-overlay') as HTMLElement;
+    const paletteInput   = document.getElementById('palette-input') as HTMLInputElement;
+    const paletteResults = document.getElementById('palette-results') as HTMLElement;
+
+    function renderPalette(q: string) {
+      const matches = q
+        ? COMMANDS.filter(c => c.key.includes(q.toLowerCase()) || c.desc.includes(q.toLowerCase()))
+        : COMMANDS;
+      if (!matches.length) {
+        paletteResults.innerHTML = `<div class="palette-empty">no matches. <span>?</span> for help.</div>`;
+        return;
+      }
+      paletteResults.innerHTML = matches.map((c, i) =>
+        `<div class="palette-row" data-idx="${i}" data-key="${c.key}">
+          <span>${c.key}</span>
+          <span class="palette-row-desc">${c.desc}</span>
+        </div>`
+      ).join('');
+      paletteResults.querySelectorAll('.palette-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const cmd = COMMANDS.find(c => c.key === (row as HTMLElement).dataset.key);
+          closePalette();
+          cmd?.run();
+        });
+      });
+    }
+
+    function openPalette() {
+      paletteOverlay.hidden = false;
+      paletteInput.value = '';
+      renderPalette('');
+      paletteInput.focus();
+    }
+
+    function closePalette() {
+      paletteOverlay.hidden = true;
+    }
+
+    paletteInput?.addEventListener('input', () => renderPalette(paletteInput.value.trim()));
+
+    paletteInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const q = paletteInput.value.trim().toLowerCase();
+        const cmd = COMMANDS.find(c => c.key === q || c.key.includes(q));
+        closePalette();
+        cmd?.run();
+      }
+    });
+
+    paletteOverlay?.addEventListener('click', (e) => {
+      if (e.target === paletteOverlay) closePalette();
+    });
+
+    // ── Help HUD ──────────────────────────────────────────────────────
+    const helpOverlay = document.getElementById('help-overlay') as HTMLElement;
+
+    function openHelp() { helpOverlay.hidden = false; }
+    function closeHelp() { helpOverlay.hidden = true; }
+
+    helpOverlay?.addEventListener('click', (e) => {
+      if (e.target === helpOverlay) closeHelp();
+    });
+
+    // ── Global keyboard router ────────────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      const t = e.target as HTMLElement;
+      const inInput = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA';
+
+      if (e.key === 'Escape') {
+        closePalette();
+        closeHelp();
+        return;
+      }
+
+      if (inInput) return;
+
+      if (e.key === '/' || e.key === ':') {
+        e.preventDefault();
+        openPalette();
+        return;
+      }
+
+      if (e.key === '?') {
+        e.preventDefault();
+        helpOverlay.hidden ? openHelp() : closeHelp();
+        return;
+      }
+
+      if (e.key === 'g') {
+        const handler = (e2: KeyboardEvent) => {
+          document.removeEventListener('keydown', handler);
+          if (e2.key === 'r') document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' });
+          if (e2.key === 'f') document.getElementById('flagship')?.scrollIntoView({ behavior: 'smooth' });
+          if (e2.key === 't') window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        document.addEventListener('keydown', handler, { once: true });
+        return;
+      }
+    });
+
+    // ── Scroll reveal (used by about.astro) ───────────────────────────
     (function () {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const els = document.querySelectorAll('.reveal, .reveal-left');
@@ -150,11 +335,93 @@ const siteTitle = title === 'Muhammad Suleiman Qureshi'
       );
       els.forEach((el) => observer.observe(el));
     })();
+
+    // ── Expose globals for cross-script use ───────────────────────────
+    (window as any).__sq = { setTheme, openPalette };
   </script>
 </body>
 </html>
 
 <style>
-  nav { font-family: var(--font-body); }
-  .font-heading { font-family: var(--font-heading); }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--color-line);
+    position: sticky;
+    top: 2px; /* sit below the 2px hairline */
+    z-index: 50;
+    background: var(--color-bg);
+    font-family: var(--font-mono);
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+
+  .topbar-left strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .divider {
+    color: var(--color-line);
+    user-select: none;
+  }
+
+  .online {
+    color: var(--color-ok);
+  }
+
+  .mute {
+    color: var(--color-mute);
+  }
+
+  .topbar-nav {
+    display: flex;
+    gap: 20px;
+  }
+
+  .topbar-link {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: var(--color-mute);
+    transition: color 0.1s;
+  }
+
+  .topbar-link:hover {
+    color: var(--color-text);
+  }
+
+  .topbar-link--active {
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-text);
+    padding-bottom: 1px;
+  }
+
+  .site-footer {
+    margin-top: 32px;
+    border-top: 1px solid var(--color-line);
+    padding: 36px 28px 28px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+  }
+
+  @media (max-width: 640px) {
+    .topbar-nav { display: none; }
+    .topbar-left { gap: 8px; }
+    #uptime-val, #scroll-pct, #last-key-chip { display: none; }
+    /* hide the dividers around hidden elements */
+    .topbar-left .divider:nth-child(n+4) { display: none; }
+  }
 </style>

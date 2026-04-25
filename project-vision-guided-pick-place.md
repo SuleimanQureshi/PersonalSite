@@ -3,7 +3,7 @@ title: "Vision-Guided Pick & Place Robotic Pipeline"
 type: project
 status: completed
 date: 2023-01-01
-tags: [robotics, computer-vision, pick-and-place, object-detection, color-detection, inverse-kinematics, FSM]
+tags: [robotics, computer-vision, pick-and-place, object-detection, inverse-kinematics, robot-arm]
 ---
 
 # Vision-Guided Pick & Place Robotic Pipeline

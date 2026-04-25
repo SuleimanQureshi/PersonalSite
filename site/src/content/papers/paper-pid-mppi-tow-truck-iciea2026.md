@@ -10,6 +10,7 @@ tags:
   - PID
   - autonomous-vehicles
   - ROS2
+  - industrial-automation
 ---
 
 # A Hierarchical PID-MPPI Control Architecture for an Autonomous Electric Tow Truck in Industrial Environments

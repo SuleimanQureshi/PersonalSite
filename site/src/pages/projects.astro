@@ -13,10 +13,8 @@ function getSummary(body: string | undefined): string | undefined {
   return match?.[1]?.trim();
 }
 
-// Collect all unique tags
 const allTags = [...new Set(projects.flatMap((p) => p.data.tags))].sort();
 
-// Collaborator extraction from body
 function getCollaborator(body: string | undefined): string | undefined {
   if (!body) return undefined;
   const m = body.match(/\|\s*\*\*Collaborator\*\*\s*\|\s*([^|]+)\|/);
@@ -28,27 +26,21 @@ function getCollaborator(body: string | undefined): string | undefined {
   title="Projects"
   description="Engineering projects by Muhammad Suleiman Qureshi — autonomous systems, robotics, and computer vision."
 >
-  <div class="max-w-5xl mx-auto px-6 py-12">
-    <h1 class="font-heading text-4xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">Projects</h1>
-    <p class="text-zinc-500 dark:text-zinc-400 mb-8 max-w-2xl">
-      From autonomous tow trucks to robotic arms — hardware, software, and everything in between.
-    </p>
+  <div class="page-wrap">
+    <div class="page-header">
+      <h1 class="page-title"><span class="mute">// </span>projects</h1>
+      <p class="page-desc">From autonomous tow trucks to robotic arms — hardware, software, and everything in between.</p>
+    </div>
 
-    <!-- Tag filter (client-side) -->
-    <div class="flex flex-wrap gap-2 mb-10" id="tag-filter">
-      <button
-        data-tag=""
-        class="tag-btn active cursor-pointer px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
-      >All</button>
+    <!-- Tag filter -->
+    <div class="tag-filter" id="tag-filter">
+      <button data-tag="" class="tag-btn active">ALL</button>
       {allTags.map((tag) => (
-        <button
-          data-tag={tag}
-          class="tag-btn cursor-pointer px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
-        >{tag}</button>
+        <button data-tag={tag} class="tag-btn">{tag}</button>
       ))}
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="project-grid">
+    <div class="cards-grid" id="project-grid">
       {projects.map((project) => (
         <div class="project-item" data-tags={project.data.tags.join(',')}>
           <ProjectCard
@@ -58,7 +50,6 @@ function getCollaborator(body: string | undefined): string | undefined {
             date={String(project.data.date)}
             tags={project.data.tags}
             summary={getSummary(project.body)}
-            cover={project.data.cover}
             collaborator={getCollaborator(project.body)}
           />
         </div>
@@ -68,34 +59,79 @@ function getCollaborator(body: string | undefined): string | undefined {
 </BaseLayout>
 
 <style>
-  .font-heading { font-family: var(--font-heading); }
+  .page-wrap {
+    padding: 32px 28px;
+  }
+
+  .page-header {
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0 0 6px;
+  }
+
+  .mute { color: var(--color-mute); }
+
+  .page-desc {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
 
   .tag-btn {
-    border-color: #e4e4e7;
-    color: #52525b;
-    background: white;
-  }
-  .dark .tag-btn {
-    border-color: #27272a;
-    color: #a1a1aa;
-    background: #18181b;
-  }
-  .tag-btn.active {
-    background: #2563eb;
-    border-color: #2563eb;
-    color: white;
-  }
-  .tag-btn:hover:not(.active) {
-    border-color: #a1a1aa;
-    color: #18181b;
-  }
-  .dark .tag-btn:hover:not(.active) {
-    border-color: #52525b;
-    color: #fafafa;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid var(--color-line);
+    color: var(--color-mute);
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.1s, color 0.1s, background 0.1s;
   }
 
-  .project-item { transition: opacity 0.2s; }
+  .tag-btn:hover:not(.active) {
+    border-color: var(--color-mute);
+    color: var(--color-text);
+  }
+
+  .tag-btn.active {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+    color: var(--color-bg);
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--color-line);
+  }
+
+  .project-item { background: var(--color-bg); }
   .project-item.hidden { display: none; }
+
+  @media (max-width: 640px) {
+    .page-wrap { padding: 20px 16px; }
+    .cards-grid { grid-template-columns: 1fr; }
+  }
 </style>
 
 <script>
@@ -105,17 +141,11 @@ function getCollaborator(body: string | undefined): string | undefined {
   buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const tag = btn.dataset.tag ?? '';
-
       buttons.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-
       items.forEach((item) => {
         const tags = (item.dataset.tags ?? '').split(',');
-        if (!tag || tags.includes(tag)) {
-          item.classList.remove('hidden');
-        } else {
-          item.classList.add('hidden');
-        }
+        item.classList.toggle('hidden', !(!tag || tags.includes(tag)));
       });
     });
   });

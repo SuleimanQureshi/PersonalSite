@@ -3,7 +3,7 @@ title: "Visual Vehicle Repair Management System"
 type: project
 status: in-progress
 date: 2025-02-01
-tags: [computer-vision, deep-learning, automotive, damage-detection, digitization]
+tags: [computer-vision, deep-learning, automotive, industrial-automation]
 ---
 
 # Visual Vehicle Repair Management System
