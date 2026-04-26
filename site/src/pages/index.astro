@@ -113,7 +113,7 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
             <input type="range" class="pid-slider" id="kd-slider" min="-1" max="1" step="0.01" value="0.1" />
             <span class="pid-val" id="kd-val">0.10</span>
           </label>
-          <div class="pid-hint">adjust gains &mdash; watch velocity & error respond</div>
+          <div class="pid-hint">negative gains invert each term &mdash; watch instability</div>
         </div>
       </div>
 
@@ -387,21 +387,9 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
   }
 
   // ── Slider wiring ─────────────────────────────────────────────
-  kpSlider.addEventListener('input', () => {
-    Kp = +kpSlider.value;
-    kpVal.textContent = Kp.toFixed(1);
-    resetSim();
-  });
-  kiSlider.addEventListener('input', () => {
-    Ki = +kiSlider.value;
-    kiVal.textContent = Ki.toFixed(2);
-    resetSim();
-  });
-  kdSlider.addEventListener('input', () => {
-    Kd = +kdSlider.value;
-    kdVal.textContent = Kd.toFixed(2);
-    resetSim();
-  });
+  kpSlider.addEventListener('input', () => { Kp = +kpSlider.value; kpVal.textContent = Kp.toFixed(1); });
+  kiSlider.addEventListener('input', () => { Ki = +kiSlider.value; kiVal.textContent = Ki.toFixed(2); });
+  kdSlider.addEventListener('input', () => { Kd = +kdSlider.value; kdVal.textContent = Kd.toFixed(2); });
 
   // ── Sim loop ──────────────────────────────────────────────────
   const FRAME_MS = 1000 / 12;
@@ -455,7 +443,7 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
 
     // Update display values
     velNum.textContent  = (velocity * 3).toFixed(2);          // m/s display
-    errNum.textContent  = absErr.toFixed(3);
+    errNum.textContent  = (absErr * 3).toFixed(3);            // same ×3 scale as velocity
 
     // Update sparklines
     velPoly.setAttribute('points', polyPoints(velHist));
@@ -492,7 +480,7 @@ const scrubCfg = [
   {
     key: 'trackerr',
     hist: errHist,
-    fmt: (v: number) => (v * 0.5).toFixed(3),        // normalised → m
+    fmt: (v: number) => (v * 0.5 * 3).toFixed(3),    // normalised → real units (×3)
   },
 ];
 
