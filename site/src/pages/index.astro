@@ -89,22 +89,31 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
         </div>
       </div>
 
-      <!-- YAW RATE -->
-      <div class="t-panel" data-metric="yaw">
+      <!-- PID GAINS -->
+      <div class="t-panel pid-panel">
         <div class="t-header">
-          <span>YAW RATE</span><span class="t-unit">deg/s</span>
+          <span>PID GAINS</span><span class="t-unit">tune</span>
         </div>
-        <div class="t-body">
-          <div class="t-value" data-value><span class="t-num">0.0</span></div>
-          <svg class="sparkline" data-sparkline="yaw" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
-            <polyline class="sp-line" points="" fill="none" stroke="var(--color-blue)" stroke-width="1.25"/>
-            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-blue)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
-            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-blue)" visibility="hidden"/>
-            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
-            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-blue)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
-          </svg>
+        <div class="t-body pid-body">
+          <label class="pid-row">
+            <span class="pid-label">Kp</span>
+            <input type="range" class="pid-slider" id="kp-slider" min="0" max="5" step="0.1" value="1.5" />
+            <span class="pid-val" id="kp-val">1.5</span>
+          </label>
+          <label class="pid-row">
+            <span class="pid-label">Ki</span>
+            <input type="range" class="pid-slider" id="ki-slider" min="0" max="2" step="0.05" value="0.5" />
+            <span class="pid-val" id="ki-val">0.50</span>
+          </label>
+          <label class="pid-row">
+            <span class="pid-label">Kd</span>
+            <input type="range" class="pid-slider" id="kd-slider" min="0" max="1" step="0.01" value="0.1" />
+            <span class="pid-val" id="kd-val">0.10</span>
+          </label>
+          <div class="pid-hint">adjust gains — watch velocity &amp; error respond</div>
         </div>
       </div>
+
 
       <!-- TRACKING ERR -->
       <div class="t-panel" data-metric="trackerr">
@@ -123,21 +132,43 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
         </div>
       </div>
 
-      <!-- SYSTEM -->
+      <!-- CONTROLLER OUTPUT -->
       <div class="t-panel">
         <div class="t-header">
-          <span>SYSTEM</span><span class="t-unit">all</span>
+          <span>CTRL OUTPUT</span><span class="t-unit">u(t)</span>
         </div>
-        <div class="t-body">
-          <div class="sys-status">
-            <div><span class="ok-dot">●</span> mppi_node&nbsp;&nbsp;&nbsp;&nbsp; OK</div>
-            <div><span class="ok-dot">●</span> ekf_localizer OK</div>
-            <div><span class="ok-dot">●</span> can_bridge&nbsp;&nbsp;&nbsp; OK</div>
-            <div><span class="warn-dot">●</span> lidar_0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OK*</div>
+        <div class="t-body pid-terms-body">
+          <div class="pid-term-row">
+            <span class="pid-term-label mute-span">P</span>
+            <div class="pid-term-track">
+              <div class="pid-term-bar bar-p" id="bar-p"></div>
+            </div>
+            <span class="pid-term-val" id="term-p">0.00</span>
+          </div>
+          <div class="pid-term-row">
+            <span class="pid-term-label mute-span">I</span>
+            <div class="pid-term-track">
+              <div class="pid-term-bar bar-i" id="bar-i"></div>
+            </div>
+            <span class="pid-term-val" id="term-i">0.00</span>
+          </div>
+          <div class="pid-term-row">
+            <span class="pid-term-label mute-span">D</span>
+            <div class="pid-term-track">
+              <div class="pid-term-bar bar-d" id="bar-d"></div>
+            </div>
+            <span class="pid-term-val" id="term-d">0.00</span>
+          </div>
+          <div class="pid-term-divider"></div>
+          <div class="pid-term-row">
+            <span class="pid-term-label" style="color:var(--color-text)">u</span>
+            <div class="pid-term-track">
+              <div class="pid-term-bar bar-u" id="bar-u"></div>
+            </div>
+            <span class="pid-term-val" id="term-u" style="color:var(--color-text)">0.00</span>
           </div>
         </div>
-      </div>
-    </div>
+</div>
   </section>
 
   <!-- ─── STATS RIBBON ─────────────────────────────────────────── -->
@@ -288,133 +319,187 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
 </BaseLayout>
 
 <script>
-  // ── Live telemetry — requestAnimationFrame, ~12 Hz ────────────────
-  (function () {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // ── PID Simulation ──────────────────────────────────────────────
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const METRICS: Record<string, { min: number; max: number; decimals: number; fmt: (v: number) => string }> = {
-      velocity: { min: 0,   max: 1,   decimals: 2, fmt: v => (v * 3).toFixed(2) },
-      yaw:      { min: 0,   max: 1,   decimals: 1, fmt: v => ((v - 0.5) * 24).toFixed(1) },
-      trackerr: { min: 0,   max: 1,   decimals: 3, fmt: v => v.toFixed(3) },
-    };
-    const HISTORY = 80;
-    const W = 180, H = 36;
-    const FRAME_MS = 1000 / 12;
+  // gains (tunable)
+  let Kp = 1.5, Ki = 0.5, Kd = 0.1;
 
-    const data: Record<string, number[]> = {};
-    const targets: Record<string, number> = {};
+  // plant + controller state
+  let velocity = 0;
+  let integral = 0;
+  let prevError = 0;
+  let simTime = 0;
 
-    Object.keys(METRICS).forEach((k) => {
-      data[k] = Array.from({ length: HISTORY }, () => Math.random());
-      targets[k] = Math.random();
-    });
+  // response tracking (reset on gain change)
+  let peakOvershoot = 0;
+  let riseTime: number | null = null;
 
-    // Cache DOM
-    const svgEls: Record<string, SVGSVGElement | null> = {};
-    const polylines: Record<string, SVGPolylineElement | null> = {};
-    const valueEls: Record<string, Element | null> = {};
+  const SETPOINT = 1.0;          // normalised target
+  const DT = 0.01;               // sim step  (s)
+  const STEPS = 8;               // sim steps per display frame
+  const HISTORY = 80;
+  const W = 180, H = 36;
 
-    Object.keys(METRICS).forEach((k) => {
-      const svg = document.querySelector<SVGSVGElement>(`[data-sparkline="${k}"]`);
-      svgEls[k] = svg ?? null;
-      polylines[k] = svg?.querySelector('.sp-line') ?? null;
-      const panel = document.querySelector(`[data-metric="${k}"]`);
-      valueEls[k] = panel?.querySelector('.t-num') ?? null;
-    });
+  const velHist: number[] = Array(HISTORY).fill(0);
+  const errHist: number[] = Array(HISTORY).fill(1);
 
-    // Display value labels also need the original metric range for display
-    const DISPLAY_METRICS: Record<string, { min: number; max: number; decimals: number }> = {
-      velocity: { min: 0, max: 3,   decimals: 2 },
-      yaw:      { min: -5, max: 5,  decimals: 1 },
-      trackerr: { min: 0, max: 0.3, decimals: 3 },
-    };
+  // ── DOM refs ──────────────────────────────────────────────────
+  const $  = (id: string) => document.getElementById(id)!;
+  const kpSlider = $('kp-slider') as HTMLInputElement;
+  const kiSlider = $('ki-slider') as HTMLInputElement;
+  const kdSlider = $('kd-slider') as HTMLInputElement;
+  const kpVal = $('kp-val'), kiVal = $('ki-val'), kdVal = $('kd-val');
 
-    let lastFrame = 0;
+  const velNum   = document.querySelector('[data-metric="velocity"] .t-num')!;
+  const errNum   = document.querySelector('[data-metric="trackerr"] .t-num')!;
+  const velPoly  = document.querySelector<SVGPolylineElement>('[data-sparkline="velocity"] .sp-line')!;
+  const errPoly  = document.querySelector<SVGPolylineElement>('[data-sparkline="trackerr"] .sp-line')!;
 
-    function tick(ts: number) {
-      requestAnimationFrame(tick);
-      if (ts - lastFrame < FRAME_MS) return;
-      lastFrame = ts;
+  const termP = $('term-p'), barP = $('bar-p') as HTMLElement;
+  const termI = $('term-i'), barI = $('bar-i') as HTMLElement;
+  const termD = $('term-d'), barD = $('bar-d') as HTMLElement;
+  const termU = $('term-u'), barU = $('bar-u') as HTMLElement;
 
-      Object.keys(METRICS).forEach((k) => {
-        if (reduced) return; // freeze series on reduced motion
+  // ── Helpers ───────────────────────────────────────────────────
+  function resetSim() {
+    velocity = 0; integral = 0; prevError = 0; simTime = 0;
+    peakOvershoot = 0; riseTime = null;
+    velHist.fill(0);
+    errHist.fill(1);
+  }
 
-        const current = data[k][data[k].length - 1];
-        if (Math.abs(current - targets[k]) < 0.04 || Math.random() < 0.018) {
-          targets[k] = Math.random();
-        }
-        const next = current + (targets[k] - current) * 0.08 + (Math.random() - 0.5) * 0.03;
-        data[k].push(Math.min(1, Math.max(0, next)));
-        if (data[k].length > HISTORY) data[k].shift();
+  function polyPoints(hist: number[]): string {
+    return hist.map((v, i) => {
+      const x = (i / (HISTORY - 1)) * W;
+      const y = H - Math.min(1, Math.max(0, v)) * H;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
 
-        // Update sparkline polyline
-        if (polylines[k]) {
-          const pts = data[k].map((v, i) => {
-            const x = (i / (HISTORY - 1)) * W;
-            const y = H - v * H;
-            return `${x.toFixed(1)},${y.toFixed(1)}`;
-          }).join(' ');
-          polylines[k]!.setAttribute('points', pts);
-        }
+  // ── Slider wiring ─────────────────────────────────────────────
+  kpSlider.addEventListener('input', () => { Kp = +kpSlider.value; kpVal.textContent = Kp.toFixed(1); });
+  kiSlider.addEventListener('input', () => { Ki = +kiSlider.value; kiVal.textContent = Ki.toFixed(2); });
+  kdSlider.addEventListener('input', () => { Kd = +kdSlider.value; kdVal.textContent = Kd.toFixed(2); });
+  // ── Sim loop ──────────────────────────────────────────────────
+  const FRAME_MS = 1000 / 12;
+  let lastFrame = 0;
 
-        // Update display value
-        if (valueEls[k]) {
-          const dm = DISPLAY_METRICS[k];
-          const raw = data[k][data[k].length - 1];
-          const displayed = dm.min + raw * (dm.max - dm.min);
-          valueEls[k]!.textContent = displayed.toFixed(dm.decimals);
-        }
-      });
+  function tick(ts: number) {
+    requestAnimationFrame(tick);
+    if (ts - lastFrame < FRAME_MS) return;
+    lastFrame = ts;
+    if (reduced) return;
+
+    // Run multiple sim steps per display frame
+    let pTerm = 0, iTerm = 0, dTerm = 0, uLast = 0;
+    for (let s = 0; s < STEPS; s++) {
+      const error = SETPOINT - velocity;
+      integral    = Math.max(-8, Math.min(8, integral + error * DT));   // anti-windup
+      const deriv = (error - prevError) / DT;
+      prevError   = error;
+
+      pTerm = Kp * error;
+      iTerm = Ki * integral;
+      dTerm = Kd * deriv;
+      const u = Math.max(0, Math.min(4, pTerm + iTerm + dTerm));
+
+      pTerm = Kp * error;
+      iTerm = Ki * integral;
+      dTerm = Kd * deriv;
+      uLast = Math.max(0, Math.min(4, pTerm + iTerm + dTerm));
+
+      // First-order lag plant  dv/dt = u − drag·v
+      velocity = Math.max(0, velocity + (uLast - 0.85 * velocity) * DT);  
+      simTime += DT;
+
+      if (velocity > SETPOINT + 1e-4 && (velocity - SETPOINT) > peakOvershoot)
+        peakOvershoot = velocity - SETPOINT;
+
+      if (riseTime === null && velocity >= 0.9 * SETPOINT)
+        riseTime = simTime;
     }
 
-    requestAnimationFrame(tick);
+    // Push history
+    velHist.push(Math.min(1.3, velocity) / 1.3);   // 0–1 for sparkline
+    if (velHist.length > HISTORY) velHist.shift();
 
-    // ── Scrubbable sparklines ──────────────────────────────────────
-    Object.keys(METRICS).forEach((k) => {
-      const svg = svgEls[k];
-      if (!svg) return;
-      const guide   = svg.querySelector('.sp-guide') as SVGLineElement;
-      const dot     = svg.querySelector('.sp-dot') as SVGCircleElement;
-      const tipBox  = svg.querySelector('.sp-tip-box') as SVGRectElement;
-      const tipTxt  = svg.querySelector('.sp-tip-txt') as SVGTextElement;
+    const absErr = Math.abs(SETPOINT - velocity);
+    errHist.push(Math.min(1, absErr / 0.5));
+    if (errHist.length > HISTORY) errHist.shift();
 
-      function showHover(normX: number) {
-        const i = Math.round(normX * (data[k].length - 1));
-        const clamped = Math.max(0, Math.min(data[k].length - 1, i));
-        const v = data[k][clamped];
-        const vbX = normX * W;
-        const vbY = H - v * H;
+    // Update display values
+    velNum.textContent  = (velocity * 3).toFixed(2);          // m/s display
+    errNum.textContent  = absErr.toFixed(3);
 
-        guide.setAttribute('x1', String(vbX));
-        guide.setAttribute('x2', String(vbX));
-        guide.setAttribute('visibility', 'visible');
+    // Update sparklines
+    velPoly.setAttribute('points', polyPoints(velHist));
+    errPoly.setAttribute('points', polyPoints(errHist));
 
-        dot.setAttribute('cx', String(vbX));
-        dot.setAttribute('cy', String(vbY));
-        dot.setAttribute('visibility', 'visible');
+    // Term bars — each bar fills proportionally within ±4 (max u)
+    const MAX = 4;
+    function setBar(bar: HTMLElement, valEl: Element, val: number) {
+      const pct = Math.min(1, Math.abs(val) / MAX) * 100;
+      bar.style.width = pct.toFixed(1) + '%';
+      valEl.textContent = val.toFixed(2);
+    }
+    setBar(barP, termP, pTerm);
+    setBar(barI, termI, iTerm);
+    setBar(barD, termD, dTerm);
+    setBar(barU, termU, uLast);
+  }
+// ── Scrubbable sparklines ──────────────────────────────────────
+const scrubCfg = [
+  {
+    key: 'velocity',
+    hist: velHist,
+    fmt: (v: number) => (v * 1.3 * 3).toFixed(2),   // normalised → m/s
+  },
+  {
+    key: 'trackerr',
+    hist: errHist,
+    fmt: (v: number) => (v * 0.5).toFixed(3),        // normalised → m
+  },
+];
 
-        const tipX = Math.min(vbX + 4, W - 50);
-        tipBox.setAttribute('x', String(tipX));
-        tipBox.setAttribute('visibility', 'visible');
+scrubCfg.forEach(({ key, hist, fmt }) => {
+  const svg = document.querySelector<SVGSVGElement>(`[data-sparkline="${key}"]`);
+  if (!svg) return;
+  const guide  = svg.querySelector('.sp-guide')   as SVGLineElement;
+  const dot    = svg.querySelector('.sp-dot')     as SVGCircleElement;
+  const tipBox = svg.querySelector('.sp-tip-box') as SVGRectElement;
+  const tipTxt = svg.querySelector('.sp-tip-txt') as SVGTextElement;
 
-        tipTxt.setAttribute('x', String(tipX + 4));
-        tipTxt.textContent = METRICS[k].fmt(v);
-        tipTxt.setAttribute('visibility', 'visible');
-      }
+  function showHover(normX: number) {
+    const i = Math.round(normX * (hist.length - 1));
+    const v = hist[Math.max(0, Math.min(hist.length - 1, i))];
+    const vbX = normX * W;
+    const vbY = H - Math.min(1, Math.max(0, v)) * H;
 
-      function hideHover() {
-        [guide, dot, tipBox, tipTxt].forEach(el => el?.setAttribute('visibility', 'hidden'));
-      }
+    guide.setAttribute('x1', String(vbX)); guide.setAttribute('x2', String(vbX));
+    guide.setAttribute('visibility', 'visible');
+    dot.setAttribute('cx', String(vbX)); dot.setAttribute('cy', String(vbY));
+    dot.setAttribute('visibility', 'visible');
+    const tipX = Math.min(vbX + 4, W - 50);
+    tipBox.setAttribute('x', String(tipX)); tipBox.setAttribute('visibility', 'visible');
+    tipTxt.setAttribute('x', String(tipX + 4));
+    tipTxt.textContent = fmt(v);
+    tipTxt.setAttribute('visibility', 'visible');
+  }
 
-      svg.addEventListener('mousemove', (e) => {
-        const r = svg.getBoundingClientRect();
-        const normX = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-        showHover(normX);
-      });
+  function hideHover() {
+    [guide, dot, tipBox, tipTxt].forEach(el => el?.setAttribute('visibility', 'hidden'));
+  }
 
-      svg.addEventListener('mouseleave', hideHover);
-    });
-  })();
+  svg.addEventListener('mousemove', (e) => {
+    const r = svg.getBoundingClientRect();
+    showHover(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+  });
+  svg.addEventListener('mouseleave', hideHover);
+});
+  requestAnimationFrame(tick);
+})();
 
   // ── Expandable research rows ──────────────────────────────────────
   (function () {
@@ -839,4 +924,136 @@ const papersWithMeta = sortedPapers.map((paper, i) => {
     .log-cols-header,
     .log-row { grid-template-columns: 2.5rem 5.5rem 3rem 1fr 1.5rem; }
   }
+
+  /* PID Tuner */
+.pid-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+  padding: 12px 10px;
+  gap: 10px;
+}
+
+.pid-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+
+.pid-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.pid-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--color-line);
+  outline: none;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.pid-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--color-text);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.pid-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: var(--color-text);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.pid-slider:hover::-webkit-slider-thumb { background: var(--color-ok); }
+.pid-slider:hover::-moz-range-thumb     { background: var(--color-ok); }
+
+.pid-val {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pid-hint {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+/* Controller output term bars */
+.pid-terms-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding: 10px 10px;
+  gap: 7px;
+}
+
+.pid-term-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pid-term-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.pid-term-track {
+  flex: 1;
+  height: 4px;
+  background: var(--color-line);
+  position: relative;
+  overflow: hidden;
+}
+
+.pid-term-bar {
+  height: 100%;
+  width: 0%;
+  transition: width 0.08s linear;
+}
+
+.bar-p { background: #e879f9; }
+.bar-i { background: var(--color-blue); }
+.bar-d { background: #f87171; }
+.bar-u { background: var(--color-text); }
+
+.pid-term-val {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pid-term-divider {
+  height: 1px;
+  background: var(--color-line);
+  margin: 2px 0;
+}
 </style>
