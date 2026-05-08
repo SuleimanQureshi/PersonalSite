@@ -1,0 +1,1095 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allPapers = await getCollection('papers');
+const allProjects = await getCollection('projects');
+
+const pinnedProject = allProjects.find((p) => p.id === 'project-autonomous-ev-tow-truck');
+
+const sortedPapers = [...allPapers].sort((a, b) =>
+  String(b.data.date).localeCompare(String(a.data.date))
+);
+
+function extractAbstract(body: string): string {
+  const m = body.match(/## Abstract\n\n?([\s\S]+?)(?:\n---|\n##)/);
+  return m?.[1]?.trim() ?? '';
+}
+
+function extractVenue(body: string): string {
+  const m = body.match(/\|\s*\*\*Venue\*\*\s*\|\s*([^|]+)\|/);
+  return m?.[1]?.trim() ?? '—';
+}
+
+function generateBibtex(paper: typeof sortedPapers[number], venue: string): string {
+  const year = String(paper.data.date).slice(0, 4);
+  const firstWord = paper.data.title.split(/\s+/).find(w => w.length > 3) ?? 'work';
+  const key = `qureshi${year}${firstWord.toLowerCase().replace(/[^a-z]/g, '')}`;
+  const type = paper.data.status === 'published' ? '@inproceedings' : '@article';
+  const venueField = venue !== '—' ? `\n  booktitle={${venue}},` : '';
+  return `${type}{${key},
+  title={${paper.data.title}},
+  author={Muhammad Suleiman Qureshi and others},
+  year={${year}},${venueField}
+}`;
+}
+
+const papersWithMeta = sortedPapers.map((paper, i) => {
+  const abstract = extractAbstract(paper.body ?? '');
+  const venue = extractVenue(paper.body ?? '');
+  const bibtex = generateBibtex(paper, venue);
+  const statusColor =
+    paper.data.status === 'published' || paper.data.status === 'completed' ? 'ok-span' :
+    paper.data.status === 'preprint' ? 'blue-span' :
+    paper.data.status === 'in-progress' ? 'warn-span' : 'mute-span';
+  return { paper, abstract, venue, bibtex, statusColor, idx: i };
+});
+---
+
+<BaseLayout title="Muhammad Suleiman Qureshi">
+
+  <!-- ─── HERO ──────────────────────────────────────────────────── -->
+  <section class="hero-grid">
+    <!-- Left: operator profile -->
+    <div class="hero-left">
+      <p class="breadcrumb"># OPERATOR_PROFILE :: role=R&amp;D_LEAD :: domain=ROBOTICS_AUTOMATION</p>
+
+      <h1 class="name">
+        Muhammad<br />Suleiman<br />Qureshi<span class="period">.</span>
+      </h1>
+
+      <div class="description">
+        <p><span class="gt">&gt;</span> building autonomous systems end-to-end &middot; PCB &rarr; sys-ID &rarr; MPC &rarr; real-time CV.</p>
+        <p><span class="gt">&gt;</span> currently leading R&amp;D at <span class="blue">HU-Takhleeq</span> &mdash; Habib University&rsquo;s industry-academia hub.</p>
+        <p><span class="gt">&gt;</span> i like systems with tangible impact<span class="cursor-blink"></span></p>
+      </div>
+
+      <div class="hero-btns">
+        <a href="/contact" class="btn-primary">./contact --open</a>
+        <a href="/Suleiman_Resume_April_2026.pdf" class="btn-secondary">cat resume.pdf</a>
+      </div>
+    </div>
+
+    <!-- Right: 2×2 telemetry panels -->
+    <div class="telemetry-grid">
+      <!-- VELOCITY -->
+      <div class="t-panel" data-metric="velocity">
+        <div class="t-header">
+          <span>VELOCITY</span><span class="t-unit">m/s</span>
+        </div>
+        <div class="t-body">
+          <div class="t-value" data-value><span class="t-num">0.00</span></div>
+          <svg class="sparkline" data-sparkline="velocity" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline class="sp-line" points="" fill="none" stroke="var(--color-ok)" stroke-width="1.25"/>
+            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-ok)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
+            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-ok)" visibility="hidden"/>
+            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
+            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-ok)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- PID GAINS -->
+      <div class="t-panel pid-panel">
+        <div class="t-header">
+          <span>PID GAINS</span><span class="t-unit">tune</span>
+        </div>
+        <div class="t-body pid-body">
+          <label class="pid-row">
+            <span class="pid-label">Kp</span>
+            <!-- CHANGED: min="-5" to allow negative proportional gain -->
+            <input type="range" class="pid-slider" id="kp-slider" min="-5" max="5" step="0.1" value="1.5" />
+            <span class="pid-val" id="kp-val">1.5</span>
+          </label>
+          <label class="pid-row">
+            <span class="pid-label">Ki</span>
+            <!-- CHANGED: min="-2" to allow negative integral gain -->
+            <input type="range" class="pid-slider" id="ki-slider" min="-2" max="2" step="0.05" value="0.5" />
+            <span class="pid-val" id="ki-val">0.50</span>
+          </label>
+          <label class="pid-row">
+            <span class="pid-label">Kd</span>
+            <!-- CHANGED: min="-1" to allow negative derivative gain -->
+            <input type="range" class="pid-slider" id="kd-slider" min="-1" max="1" step="0.01" value="0.1" />
+            <span class="pid-val" id="kd-val">0.10</span>
+          </label>
+          <div class="pid-hint">negative gains invert each term &mdash; watch instability</div>
+        </div>
+      </div>
+
+
+      <!-- TRACKING ERR -->
+      <div class="t-panel" data-metric="trackerr">
+        <div class="t-header">
+          <span>TRACKING ERR</span><span class="t-unit">m</span>
+        </div>
+        <div class="t-body">
+          <div class="t-value warn-val" data-value><span class="t-num">0.000</span></div>
+          <svg class="sparkline" data-sparkline="trackerr" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
+            <polyline class="sp-line" points="" fill="none" stroke="var(--color-warn)" stroke-width="1.25"/>
+            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-warn)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
+            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-warn)" visibility="hidden"/>
+            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
+            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-warn)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- CONTROLLER OUTPUT -->
+      <div class="t-panel">
+        <div class="t-header">
+          <span>CTRL OUTPUT</span><span class="t-unit">u(t)</span>
+        </div>
+        <div class="t-body pid-terms-body">
+          <div class="pid-term-row">
+            <span class="pid-term-label mute-span">P</span>
+            <div class="pid-term-track">
+              <div class="pid-term-center"></div>
+              <div class="pid-term-bar bar-p" id="bar-p"></div>
+            </div>
+            <span class="pid-term-val" id="term-p">0.00</span>
+          </div>
+          <div class="pid-term-row">
+            <span class="pid-term-label mute-span">I</span>
+            <div class="pid-term-track">
+              <div class="pid-term-center"></div>
+              <div class="pid-term-bar bar-i" id="bar-i"></div>
+            </div>
+            <span class="pid-term-val" id="term-i">0.00</span>
+          </div>
+          <div class="pid-term-row">
+            <span class="pid-term-label mute-span">D</span>
+            <div class="pid-term-track">
+              <div class="pid-term-center"></div>
+              <div class="pid-term-bar bar-d" id="bar-d"></div>
+            </div>
+            <span class="pid-term-val" id="term-d">0.00</span>
+          </div>
+          <div class="pid-term-divider"></div>
+          <div class="pid-term-row">
+            <span class="pid-term-label" style="color:var(--color-text)">u</span>
+            <div class="pid-term-track">
+              <div class="pid-term-center"></div>
+              <div class="pid-term-bar bar-u" id="bar-u"></div>
+            </div>
+            <span class="pid-term-val" id="term-u" style="color:var(--color-text)">0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STATS RIBBON ─────────────────────────────────────────── -->
+  <section class="stats-ribbon">
+    <div class="stat-cell">
+      <div class="stat-label">PAPERS</div>
+      <div class="stat-value">06</div>
+      <div class="stat-sub">/ peer-reviewed + preprint</div>
+    </div>
+    <div class="stat-cell stat-bordered">
+      <div class="stat-label">PROJECTS</div>
+      <div class="stat-value">09</div>
+      <div class="stat-sub">/ deployed or live</div>
+    </div>
+    <div class="stat-cell stat-bordered">
+      <div class="stat-label">CGPA</div>
+      <div class="stat-value">3.88</div>
+      <div class="stat-sub">/ 4.00</div>
+    </div>
+    <div class="stat-cell stat-bordered">
+      <div class="stat-label">DEAN&rsquo;S LIST</div>
+      <div class="stat-value">&times;4</div>
+      <div class="stat-sub">/ consecutive</div>
+    </div>
+  </section>
+
+  <!-- ─── RESEARCH LOG ──────────────────────────────────────────── -->
+  <section class="research-log" id="research">
+    <div class="log-header">
+      <span class="log-title">
+        <span class="mute-span">// </span>research_log<span class="mute-span"> [{allPapers.length}]</span>
+      </span>
+      <span class="log-sort">sort: --date.desc</span>
+    </div>
+
+    <div class="log-table">
+      <div class="log-cols-header">
+        <span>id</span>
+        <span>TAG</span>
+        <span>year</span>
+        <span>title</span>
+        <span class="log-keys-col">keys</span>
+        <span class="log-chevron-col"></span>
+      </div>
+
+      {papersWithMeta.map(({ paper, abstract, venue, bibtex, statusColor, idx }) => (
+        <div class="log-entry" data-entry-id={paper.id}>
+          <div class="log-row" data-expandable>
+            <span class="mute-span">{String(idx + 1).padStart(2, '0')}</span>
+            <span class={statusColor}>● {paper.data.status.toUpperCase()}</span>
+            <span class="mute-span">{String(paper.data.date).slice(0, 4)}</span>
+            <span class="log-title-cell">{paper.data.title}</span>
+            <span class="log-keys-col mute-span">{paper.data.tags.slice(0, 3).map((t: string) => `#${t}`).join(' ')}</span>
+            <span class="log-chevron">›</span>
+          </div>
+          <div class="log-expanded" hidden>
+            <div class="expanded-left">
+              <div class="expanded-eyebrow">Abstract — {venue} {String(paper.data.date).slice(0, 4)}</div>
+              <div class="expanded-abstract">{abstract || 'No abstract available.'}</div>
+              <div class="expanded-btns">
+                <a href={`/research/${paper.id}`} class="btn-open-paper">open paper ↗</a>
+                <button class="btn-copy-bib" data-bibtex={bibtex}>copy bib</button>
+              </div>
+            </div>
+            <div class="expanded-right">
+              <pre class="expanded-bibtex">{bibtex}</pre>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ─── FLAGSHIP ─────────────────────────────────────────────── -->
+  {pinnedProject && (
+    <section class="flagship" id="flagship" onclick="window.location.href='/projects/project-autonomous-ev-tow-truck'" style="cursor:pointer">
+      <div class="flagship-header">
+        <span><span class="mute-span">// </span>flagship :: <span class="warn-span">ev-tow-01</span></span>
+        
+      </div>
+
+      <div class="flagship-grid">
+        <!-- Left: vehicle schematic -->
+        <div class="t-panel schematic-panel">
+          <div class="t-header">
+            <span>VEHICLE · EV-TOW-01</span><span class="t-unit">retrofit</span>
+          </div>
+          <div class="schematic-body stripes-dark">
+            <svg viewBox="0 0 600 260" class="schematic-svg" aria-label="EV Tow Truck top-down schematic">
+              <!-- Chassis -->
+              <rect x="180" y="80" width="240" height="100" fill="none" stroke="var(--color-mute)" stroke-width="1"/>
+              <!-- Cab -->
+              <rect x="210" y="55" width="180" height="25" fill="none" stroke="var(--color-mute)" stroke-width="1"/>
+              <!-- Hitch arm -->
+              <rect x="130" y="120" width="50" height="20" fill="none" stroke="var(--color-mute)" stroke-width="1" stroke-dasharray="4,2"/>
+              <!-- Wheels -->
+              <circle cx="210" cy="185" r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <circle cx="390" cy="185" r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <circle cx="210" cy="75"  r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <circle cx="390" cy="75"  r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
+              <!-- LIDAR -->
+              <circle cx="300" cy="67" r="8" fill="var(--color-warn)"/>
+              <line x1="300" y1="59" x2="300" y2="20" stroke="var(--color-warn)" stroke-width="0.8" stroke-dasharray="3,2"/>
+              <text x="308" y="18" font-size="10" fill="var(--color-warn)" font-family="var(--font-mono)">LIDAR_0</text>
+              <!-- IMU -->
+              <rect x="290" y="120" width="20" height="20" fill="var(--color-blue)"/>
+              <line x1="310" y1="130" x2="370" y2="130" stroke="var(--color-blue)" stroke-width="0.8" stroke-dasharray="3,2"/>
+              <text x="374" y="134" font-size="10" fill="var(--color-blue)" font-family="var(--font-mono)">IMU</text>
+              <!-- CAM -->
+              <rect x="410" y="117" width="14" height="26" fill="var(--color-ok)"/>
+              <line x1="424" y1="130" x2="480" y2="130" stroke="var(--color-ok)" stroke-width="0.8" stroke-dasharray="3,2"/>
+              <text x="484" y="134" font-size="10" fill="var(--color-ok)" font-family="var(--font-mono)">CAM</text>
+              <!-- Captions -->
+              <text x="185" y="245" font-size="10" fill="var(--color-mute)" font-family="var(--font-mono)">fig. 01 — sensor layout (top)</text>
+              <text x="490" y="245" font-size="10" fill="var(--color-mute)" font-family="var(--font-mono)">scale 1:24</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Right: stacked panels -->
+        <div class="flagship-right">
+          <div class="t-panel">
+            <div class="t-header"><span>CONTROL STACK</span></div>
+            <div class="t-body control-stack">
+              <div><span class="mute-span">│</span> OUTER&nbsp;&nbsp; <span>MPPI (N=1024, H=30)</span></div>
+              <div><span class="mute-span">├──</span>&nbsp;&nbsp;&nbsp;&nbsp; COST&nbsp;&nbsp;&nbsp; tracking + obstacle + smoothness</div>
+              <div><span class="mute-span">│</span></div>
+              <div><span class="mute-span">│</span> INNER&nbsp;&nbsp; <span>PID (v, δ)</span></div>
+              <div><span class="mute-span">├──</span>&nbsp;&nbsp;&nbsp;&nbsp; RATE&nbsp;&nbsp;&nbsp; 100 Hz</div>
+              <div><span class="mute-span">│</span></div>
+              <div><span class="mute-span">│</span> PLANT&nbsp;&nbsp; <span>system-ID&rsquo;d 2DOF bicycle</span></div>
+            </div>
+          </div>
+
+          <div class="t-panel">
+            <div class="t-header"><span>IMPACT</span></div>
+            <div class="t-body impact-body">
+              Operational and moving towards final deployment. Full-stack: custom PCB, sys-ID, hierarchical control,
+              and a real-time perception pipeline. First autonomous retrofit to run on this
+              class of vehicle in PK industry.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+</BaseLayout>
+
+<script>
+  // ── PID Simulation ──────────────────────────────────────────────
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // gains (tunable — may be negative)
+  let Kp = 1.5, Ki = 0.5, Kd = 0.1;
+
+  // plant + controller state
+  let velocity = 0;
+  let integral = 0;
+  let prevError = 0;
+  let simTime = 0;
+
+  // response tracking (reset on gain change)
+  let peakOvershoot = 0;
+  let riseTime: number | null = null;
+
+  const SETPOINT = 1.0;          // normalised target
+  const DT = 0.01;               // sim step  (s)
+  const STEPS = 8;               // sim steps per display frame
+  const HISTORY = 80;
+  const W = 180, H = 36;
+
+  const velHist: number[] = Array(HISTORY).fill(0);
+  const errHist: number[] = Array(HISTORY).fill(1);
+
+  // ── DOM refs ──────────────────────────────────────────────────
+  const $  = (id: string) => document.getElementById(id)!;
+  const kpSlider = $('kp-slider') as HTMLInputElement;
+  const kiSlider = $('ki-slider') as HTMLInputElement;
+  const kdSlider = $('kd-slider') as HTMLInputElement;
+  const kpVal = $('kp-val'), kiVal = $('ki-val'), kdVal = $('kd-val');
+
+  const velNum   = document.querySelector('[data-metric="velocity"] .t-num')!;
+  const errNum   = document.querySelector('[data-metric="trackerr"] .t-num')!;
+  const velPoly  = document.querySelector<SVGPolylineElement>('[data-sparkline="velocity"] .sp-line')!;
+  const errPoly  = document.querySelector<SVGPolylineElement>('[data-sparkline="trackerr"] .sp-line')!;
+
+  const termP = $('term-p'), barP = $('bar-p') as HTMLElement;
+  const termI = $('term-i'), barI = $('bar-i') as HTMLElement;
+  const termD = $('term-d'), barD = $('bar-d') as HTMLElement;
+  const termU = $('term-u'), barU = $('bar-u') as HTMLElement;
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function resetSim() {
+    velocity = 0; integral = 0; prevError = 0; simTime = 0;
+    peakOvershoot = 0; riseTime = null;
+    velHist.fill(0);
+    errHist.fill(1);
+  }
+
+  function polyPoints(hist: number[]): string {
+    return hist.map((v, i) => {
+      const x = (i / (HISTORY - 1)) * W;
+      const y = H - Math.min(1, Math.max(0, v)) * H;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
+
+  // ── Slider wiring ─────────────────────────────────────────────
+  kpSlider.addEventListener('input', () => { Kp = +kpSlider.value; kpVal.textContent = Kp.toFixed(1); });
+  kiSlider.addEventListener('input', () => { Ki = +kiSlider.value; kiVal.textContent = Ki.toFixed(2); });
+  kdSlider.addEventListener('input', () => { Kd = +kdSlider.value; kdVal.textContent = Kd.toFixed(2); });
+
+  // ── Sim loop ──────────────────────────────────────────────────
+  const FRAME_MS = 1000 / 12;
+  let lastFrame = 0;
+
+  function tick(ts: number) {
+    requestAnimationFrame(tick);
+    if (ts - lastFrame < FRAME_MS) return;
+    lastFrame = ts;
+    if (reduced) return;
+
+    // Run multiple sim steps per display frame
+    let pTerm = 0, iTerm = 0, dTerm = 0, uLast = 0;
+    for (let s = 0; s < STEPS; s++) {
+      const error = SETPOINT - velocity;
+
+      // Anti-windup clamp (symmetric around 0 to work with negative Ki too)
+      integral = Math.max(-8, Math.min(8, integral + error * DT));
+
+      const deriv = (error - prevError) / DT;
+      prevError   = error;
+
+      pTerm = Kp * error;
+      iTerm = Ki * integral;
+      dTerm = Kd * deriv;
+
+      // CHANGED: clamp u symmetrically to [-4, 4] so negative gains produce
+      // a valid (possibly braking / destabilising) control signal
+      uLast = Math.max(-4, Math.min(4, pTerm + iTerm + dTerm));
+
+      // First-order lag plant  dv/dt = u − drag·v
+      // Velocity is still clamped to [0, ∞] — the vehicle cannot reverse,
+      // but a negative u acts as braking (drag dominates and v → 0).
+      velocity = Math.max(0, velocity + (uLast - 0.85 * velocity) * DT);
+      simTime += DT;
+
+      if (velocity > SETPOINT + 1e-4 && (velocity - SETPOINT) > peakOvershoot)
+        peakOvershoot = velocity - SETPOINT;
+
+      if (riseTime === null && velocity >= 0.9 * SETPOINT)
+        riseTime = simTime;
+    }
+
+    // Push history
+    velHist.push(Math.min(1.3, velocity) / 1.3);   // 0–1 for sparkline
+    if (velHist.length > HISTORY) velHist.shift();
+
+    const absErr = Math.abs(SETPOINT - velocity);
+    errHist.push(Math.min(1, absErr / 0.5));
+    if (errHist.length > HISTORY) errHist.shift();
+
+    // Update display values
+    velNum.textContent  = (velocity * 3).toFixed(2);          // m/s display
+    errNum.textContent  = (absErr * 3).toFixed(3);            // same ×3 scale as velocity
+
+    // Update sparklines
+    velPoly.setAttribute('points', polyPoints(velHist));
+    errPoly.setAttribute('points', polyPoints(errHist));
+
+    // ── Term bars — signed, centred at 50% of track width ────────
+    // Positive value → bar grows rightward from centre.
+    // Negative value → bar grows leftward from centre.
+    const MAX = 4;
+    function setBar(bar: HTMLElement, valEl: Element, val: number) {
+      const pct = Math.min(1, Math.abs(val) / MAX) * 50; // half-track per side
+      if (val >= 0) {
+        bar.style.left  = '50%';
+        bar.style.width = pct.toFixed(1) + '%';
+      } else {
+        bar.style.left  = (50 - pct).toFixed(1) + '%';
+        bar.style.width = pct.toFixed(1) + '%';
+      }
+      valEl.textContent = val.toFixed(2);
+    }
+    setBar(barP, termP, pTerm);
+    setBar(barI, termI, iTerm);
+    setBar(barD, termD, dTerm);
+    setBar(barU, termU, uLast);
+  }
+
+// ── Scrubbable sparklines ──────────────────────────────────────
+const scrubCfg = [
+  {
+    key: 'velocity',
+    hist: velHist,
+    fmt: (v: number) => (v * 1.3 * 3).toFixed(2),   // normalised → m/s
+  },
+  {
+    key: 'trackerr',
+    hist: errHist,
+    fmt: (v: number) => (v * 0.5 * 3).toFixed(3),    // normalised → real units (×3)
+  },
+];
+
+scrubCfg.forEach(({ key, hist, fmt }) => {
+  const svg = document.querySelector<SVGSVGElement>(`[data-sparkline="${key}"]`);
+  if (!svg) return;
+  const guide  = svg.querySelector('.sp-guide')   as SVGLineElement;
+  const dot    = svg.querySelector('.sp-dot')     as SVGCircleElement;
+  const tipBox = svg.querySelector('.sp-tip-box') as SVGRectElement;
+  const tipTxt = svg.querySelector('.sp-tip-txt') as SVGTextElement;
+
+  function showHover(normX: number) {
+    const i = Math.round(normX * (hist.length - 1));
+    const v = hist[Math.max(0, Math.min(hist.length - 1, i))];
+    const vbX = normX * W;
+    const vbY = H - Math.min(1, Math.max(0, v)) * H;
+
+    guide.setAttribute('x1', String(vbX)); guide.setAttribute('x2', String(vbX));
+    guide.setAttribute('visibility', 'visible');
+    dot.setAttribute('cx', String(vbX)); dot.setAttribute('cy', String(vbY));
+    dot.setAttribute('visibility', 'visible');
+    const tipX = Math.min(vbX + 4, W - 50);
+    tipBox.setAttribute('x', String(tipX)); tipBox.setAttribute('visibility', 'visible');
+    tipTxt.setAttribute('x', String(tipX + 4));
+    tipTxt.textContent = fmt(v);
+    tipTxt.setAttribute('visibility', 'visible');
+  }
+
+  function hideHover() {
+    [guide, dot, tipBox, tipTxt].forEach(el => el?.setAttribute('visibility', 'hidden'));
+  }
+
+  svg.addEventListener('mousemove', (e) => {
+    const r = svg.getBoundingClientRect();
+    showHover(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+  });
+  svg.addEventListener('mouseleave', hideHover);
+});
+  requestAnimationFrame(tick);
+})();
+
+  // ── Expandable research rows ──────────────────────────────────────
+  (function () {
+    let openId: string | null = null;
+
+    document.querySelectorAll<HTMLElement>('.log-entry').forEach((entry) => {
+      const row      = entry.querySelector<HTMLElement>('.log-row');
+      const expanded = entry.querySelector<HTMLElement>('.log-expanded');
+      const chevron  = entry.querySelector<HTMLElement>('.log-chevron');
+      const id       = entry.dataset.entryId ?? '';
+
+      row?.addEventListener('click', () => {
+        const isOpen = openId === id;
+
+        // Close currently open row
+        if (openId) {
+          const prev = document.querySelector<HTMLElement>(`[data-entry-id="${openId}"] .log-expanded`);
+          const prevChev = document.querySelector<HTMLElement>(`[data-entry-id="${openId}"] .log-chevron`);
+          if (prev) prev.hidden = true;
+          if (prevChev) prevChev.style.transform = '';
+        }
+
+        if (isOpen) {
+          openId = null;
+        } else {
+          openId = id;
+          if (expanded) expanded.hidden = false;
+          if (chevron) chevron.style.transform = 'rotate(90deg)';
+        }
+      });
+
+      // Copy bib button
+      entry.querySelector<HTMLButtonElement>('.btn-copy-bib')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const bib = (e.currentTarget as HTMLButtonElement).dataset.bibtex ?? '';
+        navigator.clipboard.writeText(bib).catch(() => {});
+        const btn = e.currentTarget as HTMLButtonElement;
+        const orig = btn.textContent;
+        btn.textContent = 'copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+    });
+  })();
+</script>
+
+<style>
+  /* Hero */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    padding: 32px 28px;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .breadcrumb {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .name {
+    font-size: 84px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -2.5px;
+    line-height: 1.0;
+    color: var(--color-text);
+    margin: 0 0 22px;
+  }
+
+  .period { color: var(--color-warn); }
+
+  .description {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .description p { margin: 0; }
+
+  .gt { color: var(--color-text); }
+  .blue { color: var(--color-blue); }
+
+  .hero-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    text-decoration: none;
+    border: 1px solid var(--color-text);
+    transition: opacity 0.1s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-secondary {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--color-text);
+    text-decoration: none;
+    border: 1px solid var(--color-line);
+    transition: border-color 0.1s;
+  }
+  .btn-secondary:hover { border-color: var(--color-mute); }
+
+  /* Telemetry cluster */
+  .telemetry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--color-line);
+    align-content: start;
+  }
+
+  .t-panel {
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .t-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--color-line);
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+
+  .t-unit { color: var(--color-mute); }
+
+  .t-body {
+    padding: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .t-value {
+    font-size: 32px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1;
+  }
+
+  .warn-val .t-num { color: var(--color-warn); }
+
+  .sparkline {
+    width: 100%;
+    height: 44px;
+    display: block;
+  }
+
+  .sys-status {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    line-height: 1.9;
+  }
+
+  .ok-dot   { color: var(--color-ok); }
+  .warn-dot { color: var(--color-warn); }
+
+  /* Stats ribbon */
+  .stats-ribbon {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--color-line);
+    margin: 0 28px;
+  }
+
+  .stat-cell {
+    padding: 18px;
+  }
+
+  .stat-bordered {
+    border-left: 1px solid var(--color-line);
+  }
+
+  .stat-label {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+
+  .stat-value {
+    font-size: 36px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1.1;
+    margin-top: 6px;
+  }
+
+  .stat-sub {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--color-mute);
+    margin-top: 4px;
+  }
+
+  /* Research log */
+  .research-log {
+    padding: 36px 28px 0;
+  }
+
+  .log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+  }
+
+  .log-title {
+    font-size: 13px;
+    color: var(--color-text);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .log-sort {
+    font-size: 10px;
+    color: var(--color-mute);
+  }
+
+  .log-table {
+    border: 1px solid var(--color-line);
+  }
+
+  .log-cols-header,
+  .log-row {
+    display: grid;
+    grid-template-columns: 3rem 7rem 3.5rem 1fr 10rem 1.5rem;
+    padding: 7px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    gap: 0;
+  }
+
+  .log-cols-header {
+    font-size: 9px;
+    color: var(--color-mute);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-bg);
+  }
+
+  .log-entry {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .log-row {
+    color: var(--color-mute);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  .log-row:hover {
+    background: var(--color-panel-hi);
+  }
+
+  .log-title-cell {
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 12px;
+  }
+
+  .log-row:hover .log-title-cell {
+    color: var(--color-blue);
+  }
+
+  .log-keys-col {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .log-chevron-col {
+    width: 1.5rem;
+  }
+
+  .log-chevron {
+    color: var(--color-mute);
+    text-align: center;
+    display: inline-block;
+    transition: transform 0.15s;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* Color helpers */
+  .ok-span   { color: var(--color-ok); }
+  .warn-span { color: var(--color-warn); }
+  .blue-span { color: var(--color-blue); }
+  .mute-span { color: var(--color-mute); }
+
+  /* Flagship */
+  .flagship {
+    padding: 36px 28px 40px;
+  }
+
+  .flagship-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .flagship-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1px;
+    background: var(--color-line);
+  }
+
+  .schematic-panel {
+    min-height: 280px;
+  }
+
+  .schematic-body {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: oklch(0.18 0.01 250);
+    border: 1px dashed var(--color-line);
+  }
+
+  .schematic-svg {
+    width: 100%;
+    max-height: 220px;
+  }
+
+  .flagship-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--color-line);
+  }
+
+  .control-stack {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
+  .control-stack div { white-space: pre; }
+
+  .impact-body {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    line-height: 1.6;
+    padding: 14px;
+  }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .name { font-size: 56px; }
+    .flagship-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-grid { padding: 20px 16px; }
+    .name { font-size: 40px; letter-spacing: -1.5px; }
+    .stats-ribbon {
+      grid-template-columns: repeat(2, 1fr);
+      margin: 0 16px;
+    }
+    .research-log { padding: 24px 16px 0; }
+    .flagship { padding: 24px 16px 32px; }
+    .log-keys-col { display: none; }
+    .log-cols-header,
+    .log-row { grid-template-columns: 2.5rem 5.5rem 3rem 1fr 1.5rem; }
+  }
+
+  /* PID Tuner */
+.pid-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+  padding: 12px 10px;
+  gap: 10px;
+}
+
+.pid-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+
+.pid-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.pid-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--color-line);
+  outline: none;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.pid-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--color-text);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.pid-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: var(--color-text);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.pid-slider:hover::-webkit-slider-thumb { background: var(--color-ok); }
+.pid-slider:hover::-moz-range-thumb     { background: var(--color-ok); }
+
+.pid-val {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pid-hint {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+/* Controller output term bars — signed, centred layout */
+.pid-terms-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding: 10px 10px;
+  gap: 7px;
+}
+
+.pid-term-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pid-term-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.pid-term-track {
+  flex: 1;
+  height: 4px;
+  background: var(--color-line);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Centre tick — visual zero line */
+.pid-term-center {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  background: var(--color-mute);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pid-term-bar {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  /* left is set by JS — positive: left=50%, negative: left=(50-pct)% */
+  transition: left 0.08s linear, width 0.08s linear;
+}
+
+.bar-p { background: #e879f9; }
+.bar-i { background: var(--color-blue); }
+.bar-d { background: #f87171; }
+.bar-u { background: var(--color-text); }
+
+.pid-term-val {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pid-term-divider {
+  height: 1px;
+  background: var(--color-line);
+  margin: 2px 0;
+}
+</style>

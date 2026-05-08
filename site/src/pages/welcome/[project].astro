@@ -1,0 +1,364 @@
+---
+type ProjectData = {
+  title: string; sub: string; accent: string; tag: string;
+  tldr: string; emoji: string; techHref: string; paras: string[];
+};
+
+export function getStaticPaths() {
+  const projects: Record<string, ProjectData> = {
+    'tow-truck': {
+      title: 'EV Tow Truck',
+      sub: 'autonomous · industrial',
+      accent: '#c25a3a',
+      tag: 'flagship',
+      emoji: '🚜',
+      techHref: '/projects/project-autonomous-ev-tow-truck',
+      tldr: "Drives itself around factory floors so humans don't have to push pallets all day.",
+      paras: [
+        'This is a real electric tow truck — the kind that typically hauls heavy loads around a warehouse or factory. We took a standard vehicle and made it drive itself, completely from scratch.',
+        'It works by imagining a thousand possible futures every fraction of a second. Which way should I steer? How fast? What if there\'s an obstacle there? It picks the best option and acts on it — smoothly, 100 times per second.',
+        "The whole thing is built in-house: the circuit boards that power it, the software that controls it, the algorithms that plan where it goes. There's no off-the-shelf autopilot. This is the first autonomous retrofit of this kind of vehicle in Pakistani industry, developed in collaboration with Toyota's partner IMC.",
+      ],
+    },
+    'forest-walker': {
+      title: 'Forest Walker',
+      sub: 'quadruped · unstructured terrain',
+      accent: '#7a9b6e',
+      tag: 'preprint',
+      emoji: '🐕',
+      techHref: '/research/paper-mppi-quadruped-aim2026',
+      tldr: "A robot dog that picks its way through the woods without tripping.",
+      paras: [
+        'Walking on flat ground is easy. Walking through a forest — with roots, slopes, loose dirt, and unpredictable surfaces — is genuinely hard, even for a four-legged robot.',
+        'The challenge is footstep planning: where exactly does each leg land? Too close to a root and you slip. Too far and you overbalance. The robot has to think ahead, quickly, for every step it takes.',
+        'This work developed a way for the robot to do that planning fast enough to actually keep moving. It was tested on a quadruped robot in simulated unstructured terrain and presented at the IEEE AIM 2026 conference.',
+      ],
+    },
+    'defect-eyes': {
+      title: 'Defect Eyes',
+      sub: 'computer vision · quality control',
+      accent: '#6a7fa3',
+      tag: 'published',
+      emoji: '🔍',
+      techHref: '/projects/project-visual-fault-detection-dawlance',
+      tldr: "Spots flaws on plastic parts your eye would miss after lunch.",
+      paras: [
+        'A manufacturing line at Dawlance (a major Pakistani appliance brand) produces thousands of plastic components every day. Human inspectors check them — but humans get tired, distracted, and inconsistent.',
+        "We built a camera system that learned what a perfect part looks like. It never saw a single defective example during training — just good ones. Now, when something unusual shows up, it flags it immediately.",
+        'In testing, it caught every defect in the dataset. Zero misses. The system uses a technique called PatchCore, which compares new parts against a memory of what normal looks like at a very fine level of detail.',
+      ],
+    },
+    'symbolic-listener': {
+      title: 'Symbolic Listener',
+      sub: 'gearbox · diagnostics',
+      accent: '#d4a546',
+      tag: 'preprint',
+      emoji: '⚙️',
+      techHref: '/research/paper-symbolic-health-gearbox-iciea2026',
+      tldr: "Reads a machine's vibration like a stethoscope, then writes the diagnosis as math.",
+      paras: [
+        "A gearbox — the spinning, meshing set of gears inside industrial machines — makes a very specific sound and vibration when it's healthy. When something starts going wrong, that signature changes.",
+        "Normally, detecting these faults requires either a human expert with years of experience, or a black-box AI that can't explain its decisions. We built something different.",
+        "Our system learns what 'healthy' vibration looks like, then describes that in a compact mathematical formula. When a real gearbox's vibration violates that formula, you know something's wrong — and you can see exactly why, in plain math. It's over 200 times faster than comparable approaches.",
+      ],
+    },
+    'solar-nanogrid': {
+      title: 'Solar Nanogrid',
+      sub: 'power electronics',
+      accent: '#8a6f9b',
+      tag: 'published',
+      emoji: '☀️',
+      techHref: '/research/paper-dc-dc-nanogrid-durs2023',
+      tldr: "A small box that turns sunshine into reliable electricity for off-grid homes.",
+      paras: [
+        "Millions of households in Pakistan don't have reliable grid electricity. Solar panels can help — but connecting them safely and efficiently to a home's wiring is more complex than it looks.",
+        'This project designed a small DC nanogrid system: a device that takes power from solar panels and battery storage, manages how it flows, and delivers clean, stable electricity to a home.',
+        "The design was optimised for low cost and local conditions — including the specific way power demand shifts throughout a typical Pakistani household's day. Published through Habib University's Design, Undergraduate Research Symposium (DURS).",
+      ],
+    },
+    'gan-converter': {
+      title: 'GaN Converter',
+      sub: 'EVs · high-frequency power electronics',
+      accent: '#3a7a8a',
+      tag: 'published',
+      emoji: '⚡',
+      techHref: '/research/paper-gan-dc-dc-ev-inmic2023',
+      tldr: "A tiny but mighty chip that makes electric car charging more efficient.",
+      paras: [
+        'Electric vehicles need to convert electricity between different voltages very quickly — and every conversion loses a little energy as heat. The faster the switching, the more of those losses you have to fight.',
+        'GaN (gallium nitride) is a newer semiconductor material that switches faster and loses less energy than the silicon chips used in most EV chargers today. But at high speeds, weird physical effects (called parasitic effects) start causing unexpected problems.',
+        'This research studied what those effects look like in GaN-based DC-DC converters and how they limit performance. Published at INMIC 2023, it lays groundwork for building more efficient EV charging hardware.',
+      ],
+    },
+  };
+
+  return Object.entries(projects).map(([slug, data]) => ({
+    params: { project: slug },
+    props:  { data },
+  }));
+}
+
+interface Props { data: ProjectData; }
+const { data } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{data.title} — Suleiman</title>
+  <meta name="description" content={data.tldr} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />
+</head>
+<body>
+
+<div class="grain-overlay" aria-hidden="true"></div>
+
+<!-- Nav -->
+<header class="nt-nav">
+  <a href="/welcome" class="nav-back">← back to projects</a>
+  <a href="/welcome" class="nav-wordmark">Suleiman.</a>
+  <a href="/tech" class="nav-switch">$ tech site →</a>
+</header>
+
+<!-- Hero -->
+<div class="proj-hero" style={`--accent:${data.accent}`}>
+  <div class="ph-inner">
+    <div class="ph-tag">{data.tag}</div>
+    <div class="ph-emoji">{data.emoji}</div>
+    <h1 class="ph-title">{data.title}</h1>
+    <div class="ph-sub">{data.sub}</div>
+  </div>
+</div>
+
+<!-- tldr card -->
+<div class="tldr-wrap">
+  <div class="tldr-card" style={`border-left: 5px solid ${data.accent}`}>
+    <div class="tldr-label">in one sentence</div>
+    <div class="tldr-text">{data.tldr}</div>
+  </div>
+</div>
+
+<!-- Body -->
+<article class="proj-body">
+  {data.paras.map((p) => <p>{p}</p>)}
+</article>
+
+<!-- Footer nav -->
+<div class="proj-footer">
+  <a href="/welcome" class="pf-back">← all projects</a>
+  <a href={data.techHref} class="pf-tech">see the technical version ↗</a>
+</div>
+
+</body>
+</html>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #f5f0eb;
+    --ink:   #1e1520;
+    --ink2:  #2e1f2b;
+    --rule:  #c4adb5;
+    --kicker:#7a4f5c;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, #8b6070 1px, transparent 1px);
+    background-size: 6px 6px;
+    mix-blend-mode: multiply;
+    opacity: 0.10;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* Nav */
+  .nt-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(245, 240, 235, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px dashed var(--rule);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nav-back {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--kicker);
+    text-decoration: none;
+    border: 1px solid var(--rule);
+    padding: 5px 10px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-back:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+  .nav-wordmark {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-switch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #4caf72;
+    background: #0d100e;
+    text-decoration: none;
+    border: 1px solid #1e3020;
+    padding: 5px 12px;
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .nav-switch:hover { background: #111; color: #c8ffb8; border-color: #4caf72; }
+
+  /* Hero */
+  .proj-hero {
+    background: var(--accent);
+    padding: 72px 40px 56px;
+  }
+
+  .ph-inner { max-width: 760px; margin: 0 auto; }
+
+  .ph-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 3px 8px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+
+  .ph-emoji {
+    font-size: 56px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .ph-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.05;
+    margin-bottom: 12px;
+  }
+
+  .ph-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* TL;DR card */
+  .tldr-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 40px 0;
+  }
+
+  .tldr-card {
+    background: #fdf0f3;
+    padding: 20px 24px;
+  }
+
+  .tldr-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--kicker);
+    margin-bottom: 8px;
+  }
+
+  .tldr-text {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--ink2);
+    line-height: 1.4;
+  }
+
+  /* Body */
+  .proj-body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 40px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .proj-body p {
+    font-size: 18px;
+    line-height: 1.75;
+    color: var(--ink2);
+  }
+
+  /* Footer nav */
+  .proj-footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 40px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+  }
+
+  .pf-back {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--kicker);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .pf-back:hover { color: var(--ink); }
+
+  .pf-tech {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink2);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .pf-tech:hover { color: var(--ink); border-color: var(--ink); }
+
+  @media (max-width: 640px) {
+    .nt-nav { padding: 12px 20px; }
+    .proj-hero { padding: 48px 20px 36px; }
+    .tldr-wrap, .proj-body, .proj-footer { padding-left: 20px; padding-right: 20px; }
+    .ph-title { font-size: 36px; }
+    .proj-footer { flex-direction: column; gap: 16px; align-items: flex-start; }
+  }
+</style>

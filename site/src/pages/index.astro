@@ -1,1095 +1,822 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
-
-const allPapers = await getCollection('papers');
-const allProjects = await getCollection('projects');
-
-const pinnedProject = allProjects.find((p) => p.id === 'project-autonomous-ev-tow-truck');
-
-const sortedPapers = [...allPapers].sort((a, b) =>
-  String(b.data.date).localeCompare(String(a.data.date))
-);
-
-function extractAbstract(body: string): string {
-  const m = body.match(/## Abstract\n\n?([\s\S]+?)(?:\n---|\n##)/);
-  return m?.[1]?.trim() ?? '';
-}
-
-function extractVenue(body: string): string {
-  const m = body.match(/\|\s*\*\*Venue\*\*\s*\|\s*([^|]+)\|/);
-  return m?.[1]?.trim() ?? '—';
-}
-
-function generateBibtex(paper: typeof sortedPapers[number], venue: string): string {
-  const year = String(paper.data.date).slice(0, 4);
-  const firstWord = paper.data.title.split(/\s+/).find(w => w.length > 3) ?? 'work';
-  const key = `qureshi${year}${firstWord.toLowerCase().replace(/[^a-z]/g, '')}`;
-  const type = paper.data.status === 'published' ? '@inproceedings' : '@article';
-  const venueField = venue !== '—' ? `\n  booktitle={${venue}},` : '';
-  return `${type}{${key},
-  title={${paper.data.title}},
-  author={Muhammad Suleiman Qureshi and others},
-  year={${year}},${venueField}
-}`;
-}
-
-const papersWithMeta = sortedPapers.map((paper, i) => {
-  const abstract = extractAbstract(paper.body ?? '');
-  const venue = extractVenue(paper.body ?? '');
-  const bibtex = generateBibtex(paper, venue);
-  const statusColor =
-    paper.data.status === 'published' || paper.data.status === 'completed' ? 'ok-span' :
-    paper.data.status === 'preprint' ? 'blue-span' :
-    paper.data.status === 'in-progress' ? 'warn-span' : 'mute-span';
-  return { paper, abstract, venue, bibtex, statusColor, idx: i };
-});
+// Chooser gate — rendered every visit, no persistence
 ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Muhammad Suleiman Qureshi</title>
+  <meta name="description" content="Portfolio of Muhammad Suleiman Qureshi — robotics, autonomous systems, and embedded engineering." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />
+</head>
+<body>
 
-<BaseLayout title="Muhammad Suleiman Qureshi">
+  <!-- ── TOP BANNER ──────────────────────────────────────────────── -->
+  <div class="banner">
+    <div class="kicker">─── SELECTION REQUIRED TO CONTINUE ───</div>
+    <h1 class="headline">
+      Before you visit my site, please tell me &mdash; are you a <em>technical or non-technical visitor?</em>
+    </h1>
+    <p class="subnote">PICK ONE OF THE TWO SIDES BELOW ↓</p>
+  </div>
 
-  <!-- ─── HERO ──────────────────────────────────────────────────── -->
-  <section class="hero-grid">
-    <!-- Left: operator profile -->
-    <div class="hero-left">
-      <p class="breadcrumb"># OPERATOR_PROFILE :: role=R&amp;D_LEAD :: domain=ROBOTICS_AUTOMATION</p>
+  <!-- ── SPLIT HALVES ────────────────────────────────────────────── -->
+  <div class="split" id="split">
 
-      <h1 class="name">
-        Muhammad<br />Suleiman<br />Qureshi<span class="period">.</span>
-      </h1>
+    <!-- TECHNICAL HALF -->
+    <div class="half half-tech" id="half-tech" role="button" tabindex="0" aria-label="Enter technical site">
+      <!-- Corner ticks -->
+      <div class="corner-tick tl"></div>
+      <div class="corner-tick br"></div>
 
-      <div class="description">
-        <p><span class="gt">&gt;</span> building autonomous systems end-to-end &middot; PCB &rarr; sys-ID &rarr; MPC &rarr; real-time CV.</p>
-        <p><span class="gt">&gt;</span> currently leading R&amp;D at <span class="blue">HU-Takhleeq</span> &mdash; Habib University&rsquo;s industry-academia hub.</p>
-        <p><span class="gt">&gt;</span> i like systems with tangible impact<span class="cursor-blink"></span></p>
+      <!-- Waveform decoration (top right) -->
+      <svg class="waveform-deco" viewBox="0 0 120 40" aria-hidden="true">
+        <polyline points="0,20 8,20 12,8 16,32 20,8 24,32 28,14 32,26 36,20 44,20 48,6 52,34 56,10 60,30 64,16 68,24 72,20 80,20 84,12 88,28 92,16 96,24 100,20 120,20"
+          fill="none" stroke="#4caf72" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      </svg>
+
+      <!-- Status row -->
+      <div class="tech-status">
+        <span class="online-dot">●</span> ONLINE &nbsp;&nbsp; SQ@CONTROL &nbsp;&nbsp; <span id="tech-clock">00:00:00</span> &nbsp;&nbsp; tty1
       </div>
 
-      <div class="hero-btns">
-        <a href="/contact" class="btn-primary">./contact --open</a>
-        <a href="/Suleiman_Resume_April_2026.pdf" class="btn-secondary">cat resume.pdf</a>
-      </div>
-    </div>
+      <!-- Kicker -->
+      <div class="tech-kicker">PATH 01 — FOR TECHNICAL VISITORS</div>
 
-    <!-- Right: 2×2 telemetry panels -->
-    <div class="telemetry-grid">
-      <!-- VELOCITY -->
-      <div class="t-panel" data-metric="velocity">
-        <div class="t-header">
-          <span>VELOCITY</span><span class="t-unit">m/s</span>
-        </div>
-        <div class="t-body">
-          <div class="t-value" data-value><span class="t-num">0.00</span></div>
-          <svg class="sparkline" data-sparkline="velocity" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
-            <polyline class="sp-line" points="" fill="none" stroke="var(--color-ok)" stroke-width="1.25"/>
-            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-ok)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
-            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-ok)" visibility="hidden"/>
-            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
-            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-ok)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+      <!-- Top row (mirrors human-top-row) -->
+      <div class="tech-top-row">
+        <div class="tech-handwritten">the loops, the boards →</div>
+        <div class="tech-sticker-inline">
+          <svg class="arrow-doodle arrow-doodle-tech" viewBox="0 0 60 40" aria-hidden="true">
+            <path d="M5 10 Q 20 35, 45 25" fill="none" stroke="#4caf72" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M40 30 L45 25 L38 23" fill="none" stroke="#4caf72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
+          <button class="tech-badge" id="tech-badge" aria-label="ships real systems">
+            ships<br />real<br />sys ∎
+          </button>
         </div>
       </div>
 
-      <!-- PID GAINS -->
-      <div class="t-panel pid-panel">
-        <div class="t-header">
-          <span>PID GAINS</span><span class="t-unit">tune</span>
-        </div>
-        <div class="t-body pid-body">
-          <label class="pid-row">
-            <span class="pid-label">Kp</span>
-            <!-- CHANGED: min="-5" to allow negative proportional gain -->
-            <input type="range" class="pid-slider" id="kp-slider" min="-5" max="5" step="0.1" value="1.5" />
-            <span class="pid-val" id="kp-val">1.5</span>
-          </label>
-          <label class="pid-row">
-            <span class="pid-label">Ki</span>
-            <!-- CHANGED: min="-2" to allow negative integral gain -->
-            <input type="range" class="pid-slider" id="ki-slider" min="-2" max="2" step="0.05" value="0.5" />
-            <span class="pid-val" id="ki-val">0.50</span>
-          </label>
-          <label class="pid-row">
-            <span class="pid-label">Kd</span>
-            <!-- CHANGED: min="-1" to allow negative derivative gain -->
-            <input type="range" class="pid-slider" id="kd-slider" min="-1" max="1" step="0.01" value="0.1" />
-            <span class="pid-val" id="kd-val">0.10</span>
-          </label>
-          <div class="pid-hint">negative gains invert each term &mdash; watch instability</div>
-        </div>
+      <!-- Main headline (mirrors human-headline: 2 lines, similar physical size) -->
+      <div class="tech-headline">
+        <div class="tl-line1">i'm a</div>
+        <div class="tl-line2">technical.</div>
       </div>
 
+      <!-- Subcopy -->
+      <p class="tech-sub">&gt; show me the control loops, the PCBs,<br />the papers, and the robots.<br /><em>things I&nbsp;<strong>built</strong>, things I&nbsp;<strong>shipped</strong>.</em></p>
 
-      <!-- TRACKING ERR -->
-      <div class="t-panel" data-metric="trackerr">
-        <div class="t-header">
-          <span>TRACKING ERR</span><span class="t-unit">m</span>
+      <!-- Terminal preview block -->
+      <div class="term-preview">
+        <div class="term-line"><span class="t-mute">$</span> ls --papers</div>
+        <div class="term-line t-ok">&nbsp;&nbsp;6 peer-reviewed · ICIEA · AIM · CVC · DURS · INMIC</div>
+        <div class="term-line"><span class="t-mute">$</span> ls --projects</div>
+        <div class="term-line t-ok">&nbsp;&nbsp;ev-tow-01 · forest-walker · defect-eyes · symbolic-listener</div>
+        <div class="term-line"><span class="t-mute">$</span> status flagship</div>
+        <div class="term-line t-warn">&nbsp;&nbsp;[ACTIVE] ev-tow-01 → final deployment · PK industry</div>
+        <div class="term-line"><span class="t-mute">$</span> uptime</div>
+        <div class="term-line t-ok">&nbsp;&nbsp;systems nominal &middot; <span id="uptime-tech">00:00:00</span></div>
+        <div class="term-line term-cursor-line">
+          <span class="t-mute">$</span> whoami --visitor&nbsp;<span class="term-cursor">█</span>
         </div>
-        <div class="t-body">
-          <div class="t-value warn-val" data-value><span class="t-num">0.000</span></div>
-          <svg class="sparkline" data-sparkline="trackerr" viewBox="0 0 180 36" preserveAspectRatio="none" aria-hidden="true">
-            <polyline class="sp-line" points="" fill="none" stroke="var(--color-warn)" stroke-width="1.25"/>
-            <line class="sp-guide" x1="0" y1="0" x2="0" y2="36" stroke="var(--color-warn)" stroke-opacity="0.5" stroke-dasharray="2 2" visibility="hidden"/>
-            <circle class="sp-dot" cx="0" cy="0" r="2.5" fill="var(--color-warn)" visibility="hidden"/>
-            <rect class="sp-tip-box" x="0" y="2" width="48" height="14" fill="var(--color-bg)" stroke="var(--color-line)" stroke-width="0.5" visibility="hidden"/>
-            <text class="sp-tip-txt" x="0" y="12" fill="var(--color-warn)" font-size="9" font-family="var(--font-mono)" visibility="hidden"></text>
+      </div>
+    </div>
+
+    <!-- NON-TECHNICAL HALF -->
+    <div class="half half-human" id="half-human" role="button" tabindex="0" aria-label="Enter non-technical site">
+
+      <!-- Tag bar -->
+      <div class="human-tagbar">Issue 06 &middot; The Suleiman Quarterly &middot; karachi &middot; <span id="human-date">2026</span></div>
+
+      <!-- Kicker -->
+      <div class="human-kicker">PATH 02 — FOR EVERYONE ELSE</div>
+
+      <!-- Handwritten aside + sticker side by side near the top -->
+      <div class="human-top-row">
+        <div class="human-handwritten">hey, no jargon here →</div>
+        <div class="sticker-inline">
+          <svg class="arrow-doodle" viewBox="0 0 60 40" aria-hidden="true">
+            <path d="M55 10 Q 40 35, 15 25" fill="none" stroke="#7c2840" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M20 30 L15 25 L22 23" fill="none" stroke="#7c2840" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
+          <button class="sticker" id="sticker" aria-label="built real things">
+            built<br />real<br />things ★
+          </button>
         </div>
       </div>
 
-      <!-- CONTROLLER OUTPUT -->
-      <div class="t-panel">
-        <div class="t-header">
-          <span>CTRL OUTPUT</span><span class="t-unit">u(t)</span>
-        </div>
-        <div class="t-body pid-terms-body">
-          <div class="pid-term-row">
-            <span class="pid-term-label mute-span">P</span>
-            <div class="pid-term-track">
-              <div class="pid-term-center"></div>
-              <div class="pid-term-bar bar-p" id="bar-p"></div>
-            </div>
-            <span class="pid-term-val" id="term-p">0.00</span>
-          </div>
-          <div class="pid-term-row">
-            <span class="pid-term-label mute-span">I</span>
-            <div class="pid-term-track">
-              <div class="pid-term-center"></div>
-              <div class="pid-term-bar bar-i" id="bar-i"></div>
-            </div>
-            <span class="pid-term-val" id="term-i">0.00</span>
-          </div>
-          <div class="pid-term-row">
-            <span class="pid-term-label mute-span">D</span>
-            <div class="pid-term-track">
-              <div class="pid-term-center"></div>
-              <div class="pid-term-bar bar-d" id="bar-d"></div>
-            </div>
-            <span class="pid-term-val" id="term-d">0.00</span>
-          </div>
-          <div class="pid-term-divider"></div>
-          <div class="pid-term-row">
-            <span class="pid-term-label" style="color:var(--color-text)">u</span>
-            <div class="pid-term-track">
-              <div class="pid-term-center"></div>
-              <div class="pid-term-bar bar-u" id="bar-u"></div>
-            </div>
-            <span class="pid-term-val" id="term-u" style="color:var(--color-text)">0.00</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── STATS RIBBON ─────────────────────────────────────────── -->
-  <section class="stats-ribbon">
-    <div class="stat-cell">
-      <div class="stat-label">PAPERS</div>
-      <div class="stat-value">06</div>
-      <div class="stat-sub">/ peer-reviewed + preprint</div>
-    </div>
-    <div class="stat-cell stat-bordered">
-      <div class="stat-label">PROJECTS</div>
-      <div class="stat-value">09</div>
-      <div class="stat-sub">/ deployed or live</div>
-    </div>
-    <div class="stat-cell stat-bordered">
-      <div class="stat-label">CGPA</div>
-      <div class="stat-value">3.88</div>
-      <div class="stat-sub">/ 4.00</div>
-    </div>
-    <div class="stat-cell stat-bordered">
-      <div class="stat-label">DEAN&rsquo;S LIST</div>
-      <div class="stat-value">&times;4</div>
-      <div class="stat-sub">/ consecutive</div>
-    </div>
-  </section>
-
-  <!-- ─── RESEARCH LOG ──────────────────────────────────────────── -->
-  <section class="research-log" id="research">
-    <div class="log-header">
-      <span class="log-title">
-        <span class="mute-span">// </span>research_log<span class="mute-span"> [{allPapers.length}]</span>
-      </span>
-      <span class="log-sort">sort: --date.desc</span>
-    </div>
-
-    <div class="log-table">
-      <div class="log-cols-header">
-        <span>id</span>
-        <span>TAG</span>
-        <span>year</span>
-        <span>title</span>
-        <span class="log-keys-col">keys</span>
-        <span class="log-chevron-col"></span>
+      <!-- Main headline -->
+      <div class="human-headline">
+        <div class="hl-line1">i'm just</div>
+        <div class="hl-line2">curious.</div>
       </div>
 
-      {papersWithMeta.map(({ paper, abstract, venue, bibtex, statusColor, idx }) => (
-        <div class="log-entry" data-entry-id={paper.id}>
-          <div class="log-row" data-expandable>
-            <span class="mute-span">{String(idx + 1).padStart(2, '0')}</span>
-            <span class={statusColor}>● {paper.data.status.toUpperCase()}</span>
-            <span class="mute-span">{String(paper.data.date).slice(0, 4)}</span>
-            <span class="log-title-cell">{paper.data.title}</span>
-            <span class="log-keys-col mute-span">{paper.data.tags.slice(0, 3).map((t: string) => `#${t}`).join(' ')}</span>
-            <span class="log-chevron">›</span>
-          </div>
-          <div class="log-expanded" hidden>
-            <div class="expanded-left">
-              <div class="expanded-eyebrow">Abstract — {venue} {String(paper.data.date).slice(0, 4)}</div>
-              <div class="expanded-abstract">{abstract || 'No abstract available.'}</div>
-              <div class="expanded-btns">
-                <a href={`/research/${paper.id}`} class="btn-open-paper">open paper ↗</a>
-                <button class="btn-copy-bib" data-bibtex={bibtex}>copy bib</button>
-              </div>
-            </div>
-            <div class="expanded-right">
-              <pre class="expanded-bibtex">{bibtex}</pre>
-            </div>
-          </div>
+      <!-- Subcopy -->
+      <p class="human-sub">plain English, real projects, zero acronyms.<br /><em>things I&nbsp;<strong>built</strong>, things I&nbsp;<strong>care</strong> about.</em></p>
+
+      <!-- Polaroid row (spread out) -->
+      <div class="polaroid-row">
+        <div class="polaroid p1">
+          <div class="p-img p-img--truck"></div>
+          <div class="p-caption">the tow truck</div>
         </div>
-      ))}
+        <div class="polaroid p2">
+          <div class="p-img p-img--robot"></div>
+          <div class="p-caption">forest robot</div>
+        </div>
+        <div class="polaroid p3">
+          <div class="p-img p-img--gear"></div>
+          <div class="p-caption">gearbox listener</div>
+        </div>
+      </div>
+
     </div>
-  </section>
+  </div>
 
-  <!-- ─── FLAGSHIP ─────────────────────────────────────────────── -->
-  {pinnedProject && (
-    <section class="flagship" id="flagship" onclick="window.location.href='/projects/project-autonomous-ev-tow-truck'" style="cursor:pointer">
-      <div class="flagship-header">
-        <span><span class="mute-span">// </span>flagship :: <span class="warn-span">ev-tow-01</span></span>
-        
-      </div>
+  <!-- ── BOTTOM CTA BAR ───────────────────────────────────────────── -->
+  <div class="cta-bar">
+    <button class="btn-tech" id="btn-tech">$ enter --tech →</button>
+    <span class="or-sep">OR</span>
+    <button class="btn-human" id="btn-human">step inside ↗</button>
+  </div>
 
-      <div class="flagship-grid">
-        <!-- Left: vehicle schematic -->
-        <div class="t-panel schematic-panel">
-          <div class="t-header">
-            <span>VEHICLE · EV-TOW-01</span><span class="t-unit">retrofit</span>
-          </div>
-          <div class="schematic-body stripes-dark">
-            <svg viewBox="0 0 600 260" class="schematic-svg" aria-label="EV Tow Truck top-down schematic">
-              <!-- Chassis -->
-              <rect x="180" y="80" width="240" height="100" fill="none" stroke="var(--color-mute)" stroke-width="1"/>
-              <!-- Cab -->
-              <rect x="210" y="55" width="180" height="25" fill="none" stroke="var(--color-mute)" stroke-width="1"/>
-              <!-- Hitch arm -->
-              <rect x="130" y="120" width="50" height="20" fill="none" stroke="var(--color-mute)" stroke-width="1" stroke-dasharray="4,2"/>
-              <!-- Wheels -->
-              <circle cx="210" cy="185" r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
-              <circle cx="390" cy="185" r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
-              <circle cx="210" cy="75"  r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
-              <circle cx="390" cy="75"  r="12" fill="none" stroke="var(--color-text)" stroke-width="1.2"/>
-              <!-- LIDAR -->
-              <circle cx="300" cy="67" r="8" fill="var(--color-warn)"/>
-              <line x1="300" y1="59" x2="300" y2="20" stroke="var(--color-warn)" stroke-width="0.8" stroke-dasharray="3,2"/>
-              <text x="308" y="18" font-size="10" fill="var(--color-warn)" font-family="var(--font-mono)">LIDAR_0</text>
-              <!-- IMU -->
-              <rect x="290" y="120" width="20" height="20" fill="var(--color-blue)"/>
-              <line x1="310" y1="130" x2="370" y2="130" stroke="var(--color-blue)" stroke-width="0.8" stroke-dasharray="3,2"/>
-              <text x="374" y="134" font-size="10" fill="var(--color-blue)" font-family="var(--font-mono)">IMU</text>
-              <!-- CAM -->
-              <rect x="410" y="117" width="14" height="26" fill="var(--color-ok)"/>
-              <line x1="424" y1="130" x2="480" y2="130" stroke="var(--color-ok)" stroke-width="0.8" stroke-dasharray="3,2"/>
-              <text x="484" y="134" font-size="10" fill="var(--color-ok)" font-family="var(--font-mono)">CAM</text>
-              <!-- Captions -->
-              <text x="185" y="245" font-size="10" fill="var(--color-mute)" font-family="var(--font-mono)">fig. 01 — sensor layout (top)</text>
-              <text x="490" y="245" font-size="10" fill="var(--color-mute)" font-family="var(--font-mono)">scale 1:24</text>
-            </svg>
-          </div>
-        </div>
-
-        <!-- Right: stacked panels -->
-        <div class="flagship-right">
-          <div class="t-panel">
-            <div class="t-header"><span>CONTROL STACK</span></div>
-            <div class="t-body control-stack">
-              <div><span class="mute-span">│</span> OUTER&nbsp;&nbsp; <span>MPPI (N=1024, H=30)</span></div>
-              <div><span class="mute-span">├──</span>&nbsp;&nbsp;&nbsp;&nbsp; COST&nbsp;&nbsp;&nbsp; tracking + obstacle + smoothness</div>
-              <div><span class="mute-span">│</span></div>
-              <div><span class="mute-span">│</span> INNER&nbsp;&nbsp; <span>PID (v, δ)</span></div>
-              <div><span class="mute-span">├──</span>&nbsp;&nbsp;&nbsp;&nbsp; RATE&nbsp;&nbsp;&nbsp; 100 Hz</div>
-              <div><span class="mute-span">│</span></div>
-              <div><span class="mute-span">│</span> PLANT&nbsp;&nbsp; <span>system-ID&rsquo;d 2DOF bicycle</span></div>
-            </div>
-          </div>
-
-          <div class="t-panel">
-            <div class="t-header"><span>IMPACT</span></div>
-            <div class="t-body impact-body">
-              Operational and moving towards final deployment. Full-stack: custom PCB, sys-ID, hierarchical control,
-              and a real-time perception pipeline. First autonomous retrofit to run on this
-              class of vehicle in PK industry.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )}
-
-</BaseLayout>
+</body>
+</html>
 
 <script>
-  // ── PID Simulation ──────────────────────────────────────────────
 (function () {
+  // ── Clock ────────────────────────────────────────────────────────
+  function clockTick() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    const t = `${hh}:${mm}:${ss}`;
+    const el = document.getElementById('tech-clock');
+    if (el) el.textContent = t;
+  }
+  clockTick();
+  setInterval(clockTick, 1000);
+
+  // ── Human date ───────────────────────────────────────────────────
+  const dateEl = document.getElementById('human-date');
+  if (dateEl) {
+    const d = new Date();
+    dateEl.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // ── Uptime ───────────────────────────────────────────────────────
+  const start = Date.now();
+  function uptimeTick() {
+    const s = Math.floor((Date.now() - start) / 1000);
+    const fmt = [
+      String(Math.floor(s / 3600)).padStart(2, '0'),
+      String(Math.floor(s / 60) % 60).padStart(2, '0'),
+      String(s % 60).padStart(2, '0'),
+    ].join(':');
+    const el = document.getElementById('uptime-tech');
+    if (el) el.textContent = fmt;
+  }
+  uptimeTick();
+  setInterval(uptimeTick, 1000);
+
+  // ── Sticker spin ─────────────────────────────────────────────────
+  let stickerDeg = -8;
+  const sticker = document.getElementById('sticker') as HTMLElement;
+  sticker?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stickerDeg += 360;
+    sticker.style.transform = `rotate(${stickerDeg}deg)`;
+  });
+
+  // ── Tech badge spin ───────────────────────────────────────────────
+  let techBadgeDeg = 8;
+  const techBadge = document.getElementById('tech-badge') as HTMLElement;
+  techBadge?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    techBadgeDeg += 360;
+    techBadge.style.transform = `rotate(${techBadgeDeg}deg)`;
+  });
+
+  // ── Hover expand ─────────────────────────────────────────────────
+  const split     = document.getElementById('split') as HTMLElement;
+  const halfTech  = document.getElementById('half-tech') as HTMLElement;
+  const halfHuman = document.getElementById('half-human') as HTMLElement;
+  const btnTech   = document.getElementById('btn-tech') as HTMLButtonElement;
+  const btnHuman  = document.getElementById('btn-human') as HTMLButtonElement;
+
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // gains (tunable — may be negative)
-  let Kp = 1.5, Ki = 0.5, Kd = 0.1;
-
-  // plant + controller state
-  let velocity = 0;
-  let integral = 0;
-  let prevError = 0;
-  let simTime = 0;
-
-  // response tracking (reset on gain change)
-  let peakOvershoot = 0;
-  let riseTime: number | null = null;
-
-  const SETPOINT = 1.0;          // normalised target
-  const DT = 0.01;               // sim step  (s)
-  const STEPS = 8;               // sim steps per display frame
-  const HISTORY = 80;
-  const W = 180, H = 36;
-
-  const velHist: number[] = Array(HISTORY).fill(0);
-  const errHist: number[] = Array(HISTORY).fill(1);
-
-  // ── DOM refs ──────────────────────────────────────────────────
-  const $  = (id: string) => document.getElementById(id)!;
-  const kpSlider = $('kp-slider') as HTMLInputElement;
-  const kiSlider = $('ki-slider') as HTMLInputElement;
-  const kdSlider = $('kd-slider') as HTMLInputElement;
-  const kpVal = $('kp-val'), kiVal = $('ki-val'), kdVal = $('kd-val');
-
-  const velNum   = document.querySelector('[data-metric="velocity"] .t-num')!;
-  const errNum   = document.querySelector('[data-metric="trackerr"] .t-num')!;
-  const velPoly  = document.querySelector<SVGPolylineElement>('[data-sparkline="velocity"] .sp-line')!;
-  const errPoly  = document.querySelector<SVGPolylineElement>('[data-sparkline="trackerr"] .sp-line')!;
-
-  const termP = $('term-p'), barP = $('bar-p') as HTMLElement;
-  const termI = $('term-i'), barI = $('bar-i') as HTMLElement;
-  const termD = $('term-d'), barD = $('bar-d') as HTMLElement;
-  const termU = $('term-u'), barU = $('bar-u') as HTMLElement;
-
-  // ── Helpers ───────────────────────────────────────────────────
-  function resetSim() {
-    velocity = 0; integral = 0; prevError = 0; simTime = 0;
-    peakOvershoot = 0; riseTime = null;
-    velHist.fill(0);
-    errHist.fill(1);
-  }
-
-  function polyPoints(hist: number[]): string {
-    return hist.map((v, i) => {
-      const x = (i / (HISTORY - 1)) * W;
-      const y = H - Math.min(1, Math.max(0, v)) * H;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-  }
-
-  // ── Slider wiring ─────────────────────────────────────────────
-  kpSlider.addEventListener('input', () => { Kp = +kpSlider.value; kpVal.textContent = Kp.toFixed(1); });
-  kiSlider.addEventListener('input', () => { Ki = +kiSlider.value; kiVal.textContent = Ki.toFixed(2); });
-  kdSlider.addEventListener('input', () => { Kd = +kdSlider.value; kdVal.textContent = Kd.toFixed(2); });
-
-  // ── Sim loop ──────────────────────────────────────────────────
-  const FRAME_MS = 1000 / 12;
-  let lastFrame = 0;
-
-  function tick(ts: number) {
-    requestAnimationFrame(tick);
-    if (ts - lastFrame < FRAME_MS) return;
-    lastFrame = ts;
-    if (reduced) return;
-
-    // Run multiple sim steps per display frame
-    let pTerm = 0, iTerm = 0, dTerm = 0, uLast = 0;
-    for (let s = 0; s < STEPS; s++) {
-      const error = SETPOINT - velocity;
-
-      // Anti-windup clamp (symmetric around 0 to work with negative Ki too)
-      integral = Math.max(-8, Math.min(8, integral + error * DT));
-
-      const deriv = (error - prevError) / DT;
-      prevError   = error;
-
-      pTerm = Kp * error;
-      iTerm = Ki * integral;
-      dTerm = Kd * deriv;
-
-      // CHANGED: clamp u symmetrically to [-4, 4] so negative gains produce
-      // a valid (possibly braking / destabilising) control signal
-      uLast = Math.max(-4, Math.min(4, pTerm + iTerm + dTerm));
-
-      // First-order lag plant  dv/dt = u − drag·v
-      // Velocity is still clamped to [0, ∞] — the vehicle cannot reverse,
-      // but a negative u acts as braking (drag dominates and v → 0).
-      velocity = Math.max(0, velocity + (uLast - 0.85 * velocity) * DT);
-      simTime += DT;
-
-      if (velocity > SETPOINT + 1e-4 && (velocity - SETPOINT) > peakOvershoot)
-        peakOvershoot = velocity - SETPOINT;
-
-      if (riseTime === null && velocity >= 0.9 * SETPOINT)
-        riseTime = simTime;
-    }
-
-    // Push history
-    velHist.push(Math.min(1.3, velocity) / 1.3);   // 0–1 for sparkline
-    if (velHist.length > HISTORY) velHist.shift();
-
-    const absErr = Math.abs(SETPOINT - velocity);
-    errHist.push(Math.min(1, absErr / 0.5));
-    if (errHist.length > HISTORY) errHist.shift();
-
-    // Update display values
-    velNum.textContent  = (velocity * 3).toFixed(2);          // m/s display
-    errNum.textContent  = (absErr * 3).toFixed(3);            // same ×3 scale as velocity
-
-    // Update sparklines
-    velPoly.setAttribute('points', polyPoints(velHist));
-    errPoly.setAttribute('points', polyPoints(errHist));
-
-    // ── Term bars — signed, centred at 50% of track width ────────
-    // Positive value → bar grows rightward from centre.
-    // Negative value → bar grows leftward from centre.
-    const MAX = 4;
-    function setBar(bar: HTMLElement, valEl: Element, val: number) {
-      const pct = Math.min(1, Math.abs(val) / MAX) * 50; // half-track per side
-      if (val >= 0) {
-        bar.style.left  = '50%';
-        bar.style.width = pct.toFixed(1) + '%';
-      } else {
-        bar.style.left  = (50 - pct).toFixed(1) + '%';
-        bar.style.width = pct.toFixed(1) + '%';
-      }
-      valEl.textContent = val.toFixed(2);
-    }
-    setBar(barP, termP, pTerm);
-    setBar(barI, termI, iTerm);
-    setBar(barD, termD, dTerm);
-    setBar(barU, termU, uLast);
-  }
-
-// ── Scrubbable sparklines ──────────────────────────────────────
-const scrubCfg = [
-  {
-    key: 'velocity',
-    hist: velHist,
-    fmt: (v: number) => (v * 1.3 * 3).toFixed(2),   // normalised → m/s
-  },
-  {
-    key: 'trackerr',
-    hist: errHist,
-    fmt: (v: number) => (v * 0.5 * 3).toFixed(3),    // normalised → real units (×3)
-  },
-];
-
-scrubCfg.forEach(({ key, hist, fmt }) => {
-  const svg = document.querySelector<SVGSVGElement>(`[data-sparkline="${key}"]`);
-  if (!svg) return;
-  const guide  = svg.querySelector('.sp-guide')   as SVGLineElement;
-  const dot    = svg.querySelector('.sp-dot')     as SVGCircleElement;
-  const tipBox = svg.querySelector('.sp-tip-box') as SVGRectElement;
-  const tipTxt = svg.querySelector('.sp-tip-txt') as SVGTextElement;
-
-  function showHover(normX: number) {
-    const i = Math.round(normX * (hist.length - 1));
-    const v = hist[Math.max(0, Math.min(hist.length - 1, i))];
-    const vbX = normX * W;
-    const vbY = H - Math.min(1, Math.max(0, v)) * H;
-
-    guide.setAttribute('x1', String(vbX)); guide.setAttribute('x2', String(vbX));
-    guide.setAttribute('visibility', 'visible');
-    dot.setAttribute('cx', String(vbX)); dot.setAttribute('cy', String(vbY));
-    dot.setAttribute('visibility', 'visible');
-    const tipX = Math.min(vbX + 4, W - 50);
-    tipBox.setAttribute('x', String(tipX)); tipBox.setAttribute('visibility', 'visible');
-    tipTxt.setAttribute('x', String(tipX + 4));
-    tipTxt.textContent = fmt(v);
-    tipTxt.setAttribute('visibility', 'visible');
-  }
-
-  function hideHover() {
-    [guide, dot, tipBox, tipTxt].forEach(el => el?.setAttribute('visibility', 'hidden'));
-  }
-
-  svg.addEventListener('mousemove', (e) => {
-    const r = svg.getBoundingClientRect();
-    showHover(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
-  });
-  svg.addEventListener('mouseleave', hideHover);
-});
-  requestAnimationFrame(tick);
-})();
-
-  // ── Expandable research rows ──────────────────────────────────────
-  (function () {
-    let openId: string | null = null;
-
-    document.querySelectorAll<HTMLElement>('.log-entry').forEach((entry) => {
-      const row      = entry.querySelector<HTMLElement>('.log-row');
-      const expanded = entry.querySelector<HTMLElement>('.log-expanded');
-      const chevron  = entry.querySelector<HTMLElement>('.log-chevron');
-      const id       = entry.dataset.entryId ?? '';
-
-      row?.addEventListener('click', () => {
-        const isOpen = openId === id;
-
-        // Close currently open row
-        if (openId) {
-          const prev = document.querySelector<HTMLElement>(`[data-entry-id="${openId}"] .log-expanded`);
-          const prevChev = document.querySelector<HTMLElement>(`[data-entry-id="${openId}"] .log-chevron`);
-          if (prev) prev.hidden = true;
-          if (prevChev) prevChev.style.transform = '';
-        }
-
-        if (isOpen) {
-          openId = null;
-        } else {
-          openId = id;
-          if (expanded) expanded.hidden = false;
-          if (chevron) chevron.style.transform = 'rotate(90deg)';
-        }
-      });
-
-      // Copy bib button
-      entry.querySelector<HTMLButtonElement>('.btn-copy-bib')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const bib = (e.currentTarget as HTMLButtonElement).dataset.bibtex ?? '';
-        navigator.clipboard.writeText(bib).catch(() => {});
-        const btn = e.currentTarget as HTMLButtonElement;
-        const orig = btn.textContent;
-        btn.textContent = 'copied!';
-        setTimeout(() => { btn.textContent = orig; }, 1500);
-      });
+  if (!reduced) {
+    halfTech.addEventListener('mouseenter', () => {
+      split.style.gridTemplateColumns = '62% 38%';
+      btnTech.classList.add('cta-active');
+      btnHuman.classList.remove('cta-active');
     });
-  })();
+    halfHuman.addEventListener('mouseenter', () => {
+      split.style.gridTemplateColumns = '38% 62%';
+      btnHuman.classList.add('cta-active');
+      btnTech.classList.remove('cta-active');
+    });
+    split.addEventListener('mouseleave', () => {
+      split.style.gridTemplateColumns = '';
+      btnTech.classList.remove('cta-active');
+      btnHuman.classList.remove('cta-active');
+    });
+  }
+
+  // ── Navigate ─────────────────────────────────────────────────────
+  function commit(chosen: 'tech' | 'human') {
+    const chosenEl = chosen === 'tech' ? halfTech  : halfHuman;
+    const otherEl  = chosen === 'tech' ? halfHuman : halfTech;
+    const dest     = chosen === 'tech' ? '/tech'   : '/welcome';
+
+    if (!reduced) {
+      chosenEl.style.transform = 'scale(1.02)';
+      otherEl.style.opacity    = '0.15';
+      setTimeout(() => { window.location.href = dest; }, 600);
+    } else {
+      window.location.href = dest;
+    }
+  }
+
+  halfTech.addEventListener('click',  () => commit('tech'));
+  halfHuman.addEventListener('click', () => commit('human'));
+  btnTech.addEventListener('click',   () => commit('tech'));
+  btnHuman.addEventListener('click',  () => commit('human'));
+
+  halfTech.addEventListener('keydown',  (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); commit('tech');  } });
+  halfHuman.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); commit('human'); } });
+})();
 </script>
 
 <style>
-  /* Hero */
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 20px;
-    padding: 32px 28px;
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
-  .hero-left {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
     display: flex;
     flex-direction: column;
+    background: #111;
+    font-family: 'JetBrains Mono', monospace;
   }
 
-  .breadcrumb {
+  /* ── Banner ─────────────────────────────────────────────────── */
+  .banner {
+    background: #111;
+    border-bottom: 1px solid #222;
+    padding: 20px 40px 16px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: #d4954a;
+    margin-bottom: 10px;
+  }
+
+  .headline {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(20px, 2.5vw, 34px);
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+
+  .headline em {
+    font-style: italic;
+    color: #d4954a;
+  }
+
+  .subnote {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    font-family: var(--font-mono);
-    color: var(--color-mute);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    color: #666;
   }
 
-  .name {
-    font-size: 84px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 700;
-    letter-spacing: -2.5px;
-    line-height: 1.0;
-    color: var(--color-text);
-    margin: 0 0 22px;
-  }
-
-  .period { color: var(--color-warn); }
-
-  .description {
-    font-size: 13px;
-    font-family: var(--font-mono);
-    color: var(--color-mute);
-    line-height: 1.6;
-    margin-bottom: 28px;
-  }
-
-  .description p { margin: 0; }
-
-  .gt { color: var(--color-text); }
-  .blue { color: var(--color-blue); }
-
-  .hero-btns {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .btn-primary {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 16px;
-    background: var(--color-text);
-    color: var(--color-bg);
-    text-decoration: none;
-    border: 1px solid var(--color-text);
-    transition: opacity 0.1s;
-  }
-  .btn-primary:hover { opacity: 0.85; }
-
-  .btn-secondary {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 10px 16px;
-    background: transparent;
-    color: var(--color-text);
-    text-decoration: none;
-    border: 1px solid var(--color-line);
-    transition: border-color 0.1s;
-  }
-  .btn-secondary:hover { border-color: var(--color-mute); }
-
-  /* Telemetry cluster */
-  .telemetry-grid {
+  /* ── Split ──────────────────────────────────────────────────── */
+  /* Each half is a flex column with the same padding-top, same gap,
+     and same content order. The bottom decoration pushes itself to
+     the bottom with margin-top: auto. As long as kicker, top-row,
+     headline, and sub have matching heights on each side, the same
+     element on the left and right sits at the same y. */
+  .split {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: var(--color-line);
-    align-content: start;
-  }
-
-  .t-panel {
-    background: var(--color-panel);
-    border: 1px solid var(--color-line);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .t-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--color-line);
-    font-size: 9px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-mute);
-  }
-
-  .t-unit { color: var(--color-mute); }
-
-  .t-body {
-    padding: 10px;
     flex: 1;
+    min-height: 0;
+    border-bottom: 1px solid #222;
+    transition: grid-template-columns 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .half {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 6px;
+    gap: 18px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: opacity 0.6s ease,
+                transform 0.6s ease;
+    outline: none;
+    padding: 88px 32px 28px;
+    user-select: none;
   }
 
-  .t-value {
-    font-size: 32px;
-    font-family: var(--font-mono);
-    font-weight: 500;
-    color: var(--color-text);
-    line-height: 1;
+  .half:focus-visible {
+    outline: 2px solid #e8a87c;
+    outline-offset: -2px;
   }
 
-  .warn-val .t-num { color: var(--color-warn); }
-
-  .sparkline {
-    width: 100%;
-    height: 44px;
-    display: block;
+  /* ── Technical half ─────────────────────────────────────────── */
+  .half-tech {
+    background: #0d100e;
+    border-right: 1px solid #1e2a1e;
   }
 
-  .sys-status {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    color: var(--color-mute);
-    line-height: 1.9;
+  /* Scanlines */
+  .half-tech::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(100, 220, 120, 0.025) 0 1px,
+      transparent 1px 3px
+    );
+    pointer-events: none;
+    z-index: 1;
   }
 
-  .ok-dot   { color: var(--color-ok); }
-  .warn-dot { color: var(--color-warn); }
-
-  /* Stats ribbon */
-  .stats-ribbon {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--color-line);
-    margin: 0 28px;
+  /* CRT radial glow */
+  .half-tech::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 40%, rgba(80, 180, 100, 0.07) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
   }
 
-  .stat-cell {
-    padding: 18px;
+  .half-tech > * { position: relative; z-index: 2; }
+
+  .corner-tick {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .corner-tick.tl {
+    top: 10px; left: 10px;
+    border-top: 1px solid #4caf72;
+    border-left: 1px solid #4caf72;
+  }
+  .corner-tick.br {
+    bottom: 10px; right: 10px;
+    border-bottom: 1px solid #4caf72;
+    border-right: 1px solid #4caf72;
   }
 
-  .stat-bordered {
-    border-left: 1px solid var(--color-line);
+  .waveform-deco {
+    position: absolute;
+    top: 14px;
+    right: 56px;
+    width: 120px;
+    height: 40px;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0.5;
   }
 
-  .stat-label {
-    font-size: 9px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.1em;
+  .tech-status {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    right: 32px;
+    font-size: 10px;
+    color: #4caf72;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .online-dot { color: #4caf72; }
+
+  .tech-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #4caf72;
     text-transform: uppercase;
-    color: var(--color-mute);
   }
 
-  .stat-value {
-    font-size: 36px;
-    font-family: var(--font-mono);
-    font-weight: 500;
-    color: var(--color-text);
-    line-height: 1.1;
-    margin-top: 6px;
+  .tech-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
 
-  .stat-sub {
-    font-size: 9px;
-    font-family: var(--font-mono);
-    color: var(--color-mute);
+  .tech-handwritten {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    color: #4caf72;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+
+  .tech-sticker-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .arrow-doodle-tech {
+    width: 50px;
+    height: 34px;
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+
+  .tech-badge {
+    width: 78px;
+    height: 78px;
+    background: transparent;
+    color: #4caf72;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: center;
+    line-height: 1.35;
+    border: 1px solid #4caf72;
+    cursor: pointer;
+    transform: rotate(8deg);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    text-transform: uppercase;
+  }
+
+  .tech-badge:focus-visible {
+    outline: 2px solid #4caf72;
+    outline-offset: 3px;
+  }
+
+  /* Matches .human-headline dimensions: same clamp range, same
+     line-height, same line count, so both headlines occupy an
+     identical vertical block. */
+  .tech-headline {
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 0.95;
+    color: #e8f4e3;
+    letter-spacing: -2px;
+  }
+
+  .tl-line1 {
+    font-size: clamp(44px, 5.6vw, 88px);
+    font-weight: 400;
+  }
+  .tl-line2 {
+    font-size: clamp(44px, 5.6vw, 88px);
+    font-weight: 700;
+    color: #4caf72;
+  }
+
+  .tech-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #6a9970;
+    line-height: 1.6;
+  }
+  .tech-sub em { font-style: normal; }
+  .tech-sub strong { color: #c8ffb8; font-weight: 600; }
+
+  .term-preview {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #1e3020;
+    padding: 12px 14px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.8;
+    max-width: 480px;
+    overflow: hidden;
+    min-height: 0;
+    margin-top: auto;
+  }
+
+  .term-line { color: #6a9970; }
+  .t-ok   { color: #4caf72; }
+  .t-warn { color: #e8a87c; }
+  .t-mute { color: #3a5a3c; }
+
+  .term-cursor-line { margin-top: 4px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    .term-cursor {
+      display: inline-block;
+      color: #4caf72;
+      animation: blink 1s steps(1) infinite;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .term-cursor { color: #4caf72; }
+  }
+
+  /* ── Non-technical half ─────────────────────────────────────── */
+  .half-human {
+    background: #f5f0eb;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Paper grain */
+  .half-human::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #8b6070 1px, transparent 1px);
+    background-size: 6px 6px;
+    mix-blend-mode: multiply;
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Warm wash */
+  .half-human::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 30%, rgba(140, 60, 80, 0.10) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .half-human > * { position: relative; z-index: 2; }
+
+  .human-tagbar {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    right: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #7a4f5c;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .human-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #7a4f5c;
+    text-transform: uppercase;
+  }
+
+  .human-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .human-handwritten {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    color: #7c2840;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+
+  .sticker-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .human-headline {
+    font-family: 'Fraunces', Georgia, serif;
+    line-height: 0.95;
+    color: #1e1520;
+  }
+
+  .hl-line1 {
+    font-size: clamp(52px, 6.6vw, 100px);
+    font-weight: 400;
+    font-style: italic;
+  }
+  .hl-line2 {
+    font-size: clamp(52px, 6.6vw, 100px);
+    font-weight: 700;
+    color: #7c2840;
+  }
+
+  .human-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #4a3540;
+    line-height: 1.6;
+  }
+  .human-sub em { font-style: normal; }
+  .human-sub strong { color: #1e1520; font-weight: 600; }
+
+  /* Polaroids */
+  .polaroid-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  .polaroid {
+    background: #fff;
+    padding: 6px 6px 22px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .p1 { transform: rotate(-5deg); }
+  .p2 { transform: rotate(2deg);  }
+  .p3 { transform: rotate(-3deg); }
+
+  .p-img {
+    width: 100%;
+    height: 60px;
+    background: #e0d8cc;
+  }
+  .p-img--truck  { background: linear-gradient(135deg, #c5b99a 0%, #9b8c77 100%); }
+  .p-img--robot  { background: linear-gradient(135deg, #a3b89a 0%, #7a9b6e 100%); }
+  .p-img--gear   { background: linear-gradient(135deg, #c9b87a 0%, #a08c50 100%); }
+
+  .p-caption {
+    font-family: 'Caveat', cursive;
+    font-size: 11px;
+    color: #4a3540;
+    text-align: center;
     margin-top: 4px;
   }
 
-  /* Research log */
-  .research-log {
-    padding: 36px 28px 0;
+  .arrow-doodle {
+    width: 50px;
+    height: 34px;
+    opacity: 0.8;
+    flex-shrink: 0;
   }
 
-  .log-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 12px;
-    font-family: var(--font-mono);
-  }
-
-  .log-title {
-    font-size: 13px;
-    color: var(--color-text);
-    font-weight: 500;
-    letter-spacing: 0.04em;
-  }
-
-  .log-sort {
-    font-size: 10px;
-    color: var(--color-mute);
-  }
-
-  .log-table {
-    border: 1px solid var(--color-line);
-  }
-
-  .log-cols-header,
-  .log-row {
-    display: grid;
-    grid-template-columns: 3rem 7rem 3.5rem 1fr 10rem 1.5rem;
-    padding: 7px 10px;
-    font-family: var(--font-mono);
+  .sticker {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: #7c2840;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    gap: 0;
-  }
-
-  .log-cols-header {
-    font-size: 9px;
-    color: var(--color-mute);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--color-line);
-    background: var(--color-bg);
-  }
-
-  .log-entry {
-    border-top: 1px solid var(--color-line);
-  }
-
-  .log-row {
-    color: var(--color-mute);
-    cursor: pointer;
-    transition: background 0.12s;
-  }
-
-  .log-row:hover {
-    background: var(--color-panel-hi);
-  }
-
-  .log-title-cell {
-    color: var(--color-text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-right: 12px;
-  }
-
-  .log-row:hover .log-title-cell {
-    color: var(--color-blue);
-  }
-
-  .log-keys-col {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: right;
-  }
-
-  .log-chevron-col {
-    width: 1.5rem;
-  }
-
-  .log-chevron {
-    color: var(--color-mute);
-    text-align: center;
-    display: inline-block;
-    transition: transform 0.15s;
-    font-size: 14px;
-    line-height: 1;
-  }
-
-  /* Color helpers */
-  .ok-span   { color: var(--color-ok); }
-  .warn-span { color: var(--color-warn); }
-  .blue-span { color: var(--color-blue); }
-  .mute-span { color: var(--color-mute); }
-
-  /* Flagship */
-  .flagship {
-    padding: 36px 28px 40px;
-  }
-
-  .flagship-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 14px;
-    font-size: 13px;
-    font-family: var(--font-mono);
-    color: var(--color-text);
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: 0.04em;
+    text-align: center;
+    line-height: 1.35;
+    border: none;
+    cursor: pointer;
+    transform: rotate(-8deg);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    text-transform: uppercase;
   }
 
-  .flagship-grid {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 1px;
-    background: var(--color-line);
+  .sticker:focus-visible {
+    outline: 2px solid #7c2840;
+    outline-offset: 3px;
   }
 
-  .schematic-panel {
-    min-height: 280px;
-  }
-
-  .schematic-body {
-    flex: 1;
-    padding: 16px;
+  /* ── CTA bar ─────────────────────────────────────────────────── */
+  .cta-bar {
+    background: #111;
+    border-top: 1px solid #222;
+    padding: 14px 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: oklch(0.18 0.01 250);
-    border: 1px dashed var(--color-line);
+    gap: 24px;
+    flex-shrink: 0;
   }
 
-  .schematic-svg {
-    width: 100%;
-    max-height: 220px;
+  .or-sep {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #444;
+    letter-spacing: 0.2em;
   }
 
-  .flagship-right {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    background: var(--color-line);
-  }
-
-  .control-stack {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    line-height: 1.9;
-    color: var(--color-text);
-  }
-
-  .control-stack div { white-space: pre; }
-
-  .impact-body {
+  .btn-tech {
+    min-width: 240px;
+    padding: 12px 24px;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-    font-family: var(--font-mono);
-    color: var(--color-text);
-    line-height: 1.6;
-    padding: 14px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: transparent;
+    color: #c8ffb8;
+    border: 2px solid #c8ffb8;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    outline: none;
   }
 
-  /* Responsive */
-  @media (max-width: 960px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-    }
-    .name { font-size: 56px; }
-    .flagship-grid {
-      grid-template-columns: 1fr;
-    }
+  .btn-tech:hover,
+  .btn-tech.cta-active {
+    background: #c8ffb8;
+    color: #0d100e;
+    box-shadow: 0 0 16px rgba(200, 255, 184, 0.3);
   }
 
-  @media (max-width: 640px) {
-    .hero-grid { padding: 20px 16px; }
-    .name { font-size: 40px; letter-spacing: -1.5px; }
-    .stats-ribbon {
-      grid-template-columns: repeat(2, 1fr);
-      margin: 0 16px;
-    }
-    .research-log { padding: 24px 16px 0; }
-    .flagship { padding: 24px 16px 32px; }
-    .log-keys-col { display: none; }
-    .log-cols-header,
-    .log-row { grid-template-columns: 2.5rem 5.5rem 3rem 1fr 1.5rem; }
+  .btn-tech:focus-visible {
+    outline: 2px solid #c8ffb8;
+    outline-offset: 3px;
   }
 
-  /* PID Tuner */
-.pid-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  flex: 1;
-  padding: 12px 10px;
-  gap: 10px;
-}
+  .btn-human {
+    min-width: 240px;
+    padding: 12px 24px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 500;
+    font-style: italic;
+    background: transparent;
+    color: #f5f0eb;
+    border: 2px solid #7c2840;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
 
-.pid-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: default;
-}
+  .btn-human:hover,
+  .btn-human.cta-active {
+    background: #7c2840;
+    color: #f5f0eb;
+    box-shadow: 0 0 16px rgba(124, 40, 64, 0.4);
+  }
 
-.pid-label {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--color-mute);
-  width: 18px;
-  flex-shrink: 0;
-}
+  .btn-human:focus-visible {
+    outline: 2px solid #7c2840;
+    outline-offset: 3px;
+  }
 
-.pid-slider {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 2px;
-  background: var(--color-line);
-  outline: none;
-  cursor: pointer;
-  border-radius: 0;
-}
+  /* ── Responsive ─────────────────────────────────────────────── */
+  @media (max-width: 760px) {
+    html, body { overflow: auto; }
 
-.pid-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 10px;
-  height: 10px;
-  background: var(--color-text);
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-}
-
-.pid-slider::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  background: var(--color-text);
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-}
-
-.pid-slider:hover::-webkit-slider-thumb { background: var(--color-ok); }
-.pid-slider:hover::-moz-range-thumb     { background: var(--color-ok); }
-
-.pid-val {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--color-text);
-  width: 30px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.pid-hint {
-  font-size: 9px;
-  font-family: var(--font-mono);
-  color: var(--color-mute);
-  letter-spacing: 0.04em;
-  margin-top: 4px;
-}
-
-/* Controller output term bars — signed, centred layout */
-.pid-terms-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-  padding: 10px 10px;
-  gap: 7px;
-}
-
-.pid-term-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pid-term-label {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  width: 14px;
-  flex-shrink: 0;
-}
-
-.pid-term-track {
-  flex: 1;
-  height: 4px;
-  background: var(--color-line);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Centre tick — visual zero line */
-.pid-term-center {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 1px;
-  height: 100%;
-  background: var(--color-mute);
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.pid-term-bar {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 0%;
-  /* left is set by JS — positive: left=50%, negative: left=(50-pct)% */
-  transition: left 0.08s linear, width 0.08s linear;
-}
-
-.bar-p { background: #e879f9; }
-.bar-i { background: var(--color-blue); }
-.bar-d { background: #f87171; }
-.bar-u { background: var(--color-text); }
-
-.pid-term-val {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--color-mute);
-  width: 34px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.pid-term-divider {
-  height: 1px;
-  background: var(--color-line);
-  margin: 2px 0;
-}
+    .split {
+      display: flex;
+      flex-direction: column;
+      min-height: auto;
+    }
+    .half {
+      flex: none;
+      min-height: 55vmax;
+      padding: 60px 20px 24px;
+      gap: 16px;
+    }
+    .tech-status  { top: 24px; left: 20px; right: 20px; }
+    .human-tagbar { top: 24px; left: 20px; right: 20px; }
+    .half-tech  { border-right: none; border-bottom: 1px solid #1e2a1e; }
+    .tl-line1, .tl-line2 { font-size: 44px; }
+    .hl-line1, .hl-line2 { font-size: 52px; }
+    .polaroid { transform: none !important; }
+    .cta-bar { flex-direction: column; gap: 12px; padding: 16px 20px; }
+    .btn-tech, .btn-human { min-width: 0; width: 100%; max-width: 320px; }
+    .banner { padding: 16px 20px 12px; }
+    .headline { font-size: 18px; }
+    .waveform-deco { display: none; }
+  }
 </style>

@@ -1,0 +1,21 @@
+<!DOCTYPE html><html><head><title>probe</title></head><body>
+<iframe id="f" src="http://localhost:4321/" style="width:1920px;height:1080px;border:0"></iframe>
+<pre id="out"></pre>
+<script>
+document.getElementById('f').onload = () => {
+  const doc = document.getElementById('f').contentDocument;
+  const sel = ['.tech-status', '.tech-kicker', '.tech-top-row', '.tech-headline', '.tech-sub', '.term-preview',
+               '.human-tagbar', '.human-kicker', '.human-top-row', '.human-headline', '.human-sub', '.polaroid-row',
+               '.half-tech', '.half-human'];
+  const out = sel.map(s => {
+    const el = doc.querySelector(s);
+    if (!el) return s + ': NOT FOUND';
+    const r = el.getBoundingClientRect();
+    return s.padEnd(20) + ' top=' + Math.round(r.top) + ' bot=' + Math.round(r.bottom) + ' h=' + Math.round(r.height);
+  });
+  document.getElementById('out').textContent = out.join('\n');
+  document.body.style.background = 'white';
+  document.body.style.color = 'black';
+};
+</script>
+</body></html>

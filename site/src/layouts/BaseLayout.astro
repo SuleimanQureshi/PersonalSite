@@ -17,7 +17,7 @@ const currentPath = Astro.url.pathname;
 const buildTime = new Date().toISOString();
 
 function navClass(href: string): string {
-  const active = href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+  const active = href === '/tech' ? currentPath === '/tech' : currentPath.startsWith(href);
   return active ? 'topbar-link topbar-link--active' : 'topbar-link';
 }
 
@@ -70,11 +70,12 @@ const siteTitle = title === 'Muhammad Suleiman Qureshi'
       <span class="mute">last key <span class="kbd-chip" id="last-key-chip">—</span></span>
     </div>
     <nav class="topbar-nav">
-      <a href="/"         class={navClass('/')}>OVERVIEW</a>
+      <a href="/tech"     class={navClass('/tech')}>OVERVIEW</a>
       <a href="/research" class={navClass('/research')}>RESEARCH</a>
       <a href="/projects" class={navClass('/projects')}>PROJECTS</a>
       <a href="/about"    class={navClass('/about')}>ABOUT</a>
       <a href="/contact"  class={navClass('/contact')}>CONTACT</a>
+      <a href="/welcome"  class="topbar-link topbar-link--switch">✦ human view</a>
     </nav>
   </header>
 
@@ -210,6 +211,7 @@ const siteTitle = title === 'Muhammad Suleiman Qureshi'
       { key: 'go flagship',  desc: 'jump to flagship project', run: () => document.getElementById('flagship')?.scrollIntoView({ behavior: 'smooth' }) },
       { key: 'go top',       desc: 'jump to top',             run: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
       { key: 'open contact', desc: 'navigate to /contact',    run: () => { window.location.href = '/contact'; } },
+      { key: 'switch view',  desc: 'go to non-technical site', run: () => { window.location.href = '/welcome'; } },
       { key: 'cat resume',   desc: 'open resume.pdf',         run: () => window.open('/Suleiman_Resume_April_2026.pdf', '_blank') },
       { key: 'theme dark',   desc: 'default theme',           run: () => setTheme('dark') },
       { key: 'theme light',  desc: 'paper / light mode',      run: () => setTheme('light') },
@@ -405,6 +407,18 @@ const siteTitle = title === 'Muhammad Suleiman Qureshi'
     border-bottom: 1px solid var(--color-text);
     padding-bottom: 1px;
   }
+
+  .topbar-link--switch {
+    background: #c25a3a;
+    color: #fdfaf2 !important;
+    border-left: none;
+    margin-left: 8px;
+    padding: 5px 14px;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  .topbar-link--switch:hover { background: #a84830; color: #fff !important; }
 
   .site-footer {
     margin-top: 32px;

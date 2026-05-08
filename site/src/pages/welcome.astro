@@ -1,0 +1,1460 @@
+---
+// Non-technical portfolio — plain English, magazine / scrapbook aesthetic
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suleiman — Human View</title>
+  <meta name="description" content="Suleiman Qureshi — robots, projects, and plain English. No jargon." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" />
+</head>
+<body>
+
+<!-- Paper grain overlay (fixed, whole page) -->
+<div class="grain-overlay" aria-hidden="true"></div>
+
+<!-- ── NAV ──────────────────────────────────────────────────────── -->
+<header class="nt-nav" id="nt-nav">
+  <a href="/tech" class="nav-switch">$ tech site →</a>
+  <a href="/welcome" class="nav-wordmark">Suleiman.</a>
+  <nav class="nav-links">
+    <a href="#what">what i do</a>
+    <a href="#stuff">stuff i made</a>
+    <a href="#now">now</a>
+    <a href="#hi">say hi</a>
+  </nav>
+</header>
+
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-kicker">✱ HELLO · ISSUE 06 · KARACHI, PK</div>
+    <h1 class="hero-headline">
+      Suleiman<br /><span class="hl-italic">builds</span> <span class="hl-bold">robots.</span>
+    </h1>
+    <p class="hero-body">
+      machines that see, think, and move on their own.
+      <br />
+      <span class="mood-chip">Currently <span id="mood-word">curious</span></span>
+    </p>
+  </div>
+  <div class="hero-right">
+    <div class="polaroid-hero">
+      <div class="polaroid-tape"></div>
+      <div class="polaroid-photo">
+        <img src="/muhammad_suleiman_qureshi.jpg" alt="Suleiman Qureshi" onerror="this.parentElement.classList.add('photo-fallback')" />
+      </div>
+      <div class="polaroid-caption">that's me, with grease →</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MARQUEE ───────────────────────────────────────────────────── -->
+<div class="marquee-strip" aria-label="Topics" role="marquee">
+  <div class="marquee-track" id="marquee-track">
+    <span class="marquee-items">
+      <span>robots that walk</span><span class="dot">·</span>
+      <span>trucks that drive themselves</span><span class="dot">·</span>
+      <span class="marquee-accent">cameras that spot defects</span><span class="dot">·</span>
+      <span>circuit boards from scratch</span><span class="dot">·</span>
+      <span>six published papers</span><span class="dot">·</span>
+      <span class="marquee-accent">one very stubborn autonomous vehicle</span><span class="dot">·</span>
+      <span>robots that walk</span><span class="dot">·</span>
+      <span>trucks that drive themselves</span><span class="dot">·</span>
+      <span class="marquee-accent">cameras that spot defects</span><span class="dot">·</span>
+      <span>circuit boards from scratch</span><span class="dot">·</span>
+      <span>six published papers</span><span class="dot">·</span>
+      <span class="marquee-accent">one very stubborn autonomous vehicle</span><span class="dot">·</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── WHAT I DO ─────────────────────────────────────────────────── -->
+<section class="section" id="what">
+  <div class="section-header">
+    <div class="sh-kicker">01 — what I actually do</div>
+    <h2 class="sh-title">In plain English.</h2>
+    <div class="sh-note">(tap to expand)</div>
+  </div>
+
+  <div class="accordion" id="accordion">
+
+    <div class="acc-row" data-open="false">
+      <div class="acc-trigger">
+        <div class="acc-icon" style="background:#c25a3a">🚜</div>
+        <div class="acc-labels">
+          <div class="acc-headline">I teach a tiny truck how to drive itself</div>
+          <div class="acc-aka">a.k.a. MPPI + PID hierarchical control</div>
+        </div>
+        <div class="acc-plus">+</div>
+      </div>
+      <div class="acc-body">
+        We took a real electric tow truck — the kind that hauls heavy things around a factory floor — and made it steer itself. No GPS, no fancy roads. It uses a computer brain that imagines a thousand possible futures every fraction of a second, picks the best one, and then smoothly steers toward it.
+      </div>
+    </div>
+
+    <div class="acc-row" data-open="false">
+      <div class="acc-trigger">
+        <div class="acc-icon" style="background:#7a9b6e">🐕</div>
+        <div class="acc-labels">
+          <div class="acc-headline">I help robot dogs not fall over in the woods</div>
+          <div class="acc-aka">a.k.a. FQA-MPPI for quadrupeds</div>
+        </div>
+        <div class="acc-plus">+</div>
+      </div>
+      <div class="acc-body">
+        A four-legged robot hiking through uneven forest terrain is surprisingly hard. Roots, slopes, loose ground — the robot has to pick where to put each foot before it steps there. My work helps it do that planning fast enough to not trip.
+      </div>
+    </div>
+
+    <div class="acc-row" data-open="false">
+      <div class="acc-trigger">
+        <div class="acc-icon" style="background:#6a7fa3">🔍</div>
+        <div class="acc-labels">
+          <div class="acc-headline">I build cameras that catch tiny scratches</div>
+          <div class="acc-aka">a.k.a. PatchCore visual inspection</div>
+        </div>
+        <div class="acc-plus">+</div>
+      </div>
+      <div class="acc-body">
+        Manufacturing lines churn out thousands of plastic parts every day. A human inspector gets tired, misses things. I built a camera system that learned what "normal" looks like — now it flags anything that deviates from that. Zero misses in testing.
+      </div>
+    </div>
+
+    <div class="acc-row" data-open="false">
+      <div class="acc-trigger">
+        <div class="acc-icon" style="background:#d4a546">⚙️</div>
+        <div class="acc-labels">
+          <div class="acc-headline">I write equations that listen to broken machines</div>
+          <div class="acc-aka">a.k.a. KAN autoencoders + symbolic regression</div>
+        </div>
+        <div class="acc-plus">+</div>
+      </div>
+      <div class="acc-body">
+        Imagine holding a stethoscope to a gearbox and having the vibration hum automatically translate into "this gear is cracked." That's the gist. The interesting part: the diagnosis comes out as a readable math formula, not a black box.
+      </div>
+    </div>
+
+    <div class="acc-row" data-open="false">
+      <div class="acc-trigger">
+        <div class="acc-icon" style="background:#8a6f9b">🔌</div>
+        <div class="acc-labels">
+          <div class="acc-headline">I solder circuit boards for fun (and for power)</div>
+          <div class="acc-aka">a.k.a. Custom PCBs + DC-DC converters</div>
+        </div>
+        <div class="acc-plus">+</div>
+      </div>
+      <div class="acc-body">
+        Every robot or autonomous system needs a power supply that won't fail. I design and build the circuit boards that do this — taking raw battery voltage and converting it cleanly to whatever the motors, sensors, and computers need.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PROJECT SHELF ─────────────────────────────────────────────── -->
+<section class="section section-shelf" id="stuff">
+  <div class="section-header">
+    <div class="sh-kicker">02 — stuff I've made</div>
+    <h2 class="sh-title">Six things, one obsession.</h2>
+    <div class="sh-note">(hover them)</div>
+  </div>
+
+  <div class="project-grid">
+
+    <div class="proj-card" style="--accent:#c25a3a">
+      <div class="proj-front">
+        <div class="proj-tag">flagship</div>
+        <div class="proj-glyph">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="22" width="48" height="22" rx="3"/>
+            <circle cx="18" cy="50" r="6"/><circle cx="46" cy="50" r="6"/>
+            <line x1="8" y1="30" x2="56" y2="30"/>
+            <rect x="20" y="14" width="24" height="8" rx="2"/>
+            <circle cx="32" cy="18" r="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="proj-title">EV Tow Truck</div>
+        <div class="proj-sub">autonomous · industrial</div>
+      </div>
+      <div class="proj-back">
+        <div class="proj-why">Drives itself around factory floors so humans don't have to push pallets all day.</div>
+        <a href="/welcome/tow-truck" class="proj-link">read more ↗</a>
+      </div>
+    </div>
+
+    <div class="proj-card" style="--accent:#7a9b6e">
+      <div class="proj-front">
+        <div class="proj-tag">preprint</div>
+        <div class="proj-glyph">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="32" cy="26" rx="12" ry="8"/>
+            <line x1="14" y1="38" x2="20" y2="28"/><line x1="50" y1="38" x2="44" y2="28"/>
+            <line x1="14" y1="38" x2="14" y2="50"/><line x1="50" y1="38" x2="50" y2="50"/>
+            <line x1="26" y1="34" x2="26" y2="50"/><line x1="38" y1="34" x2="38" y2="50"/>
+            <line x1="10" y1="50" x2="54" y2="50"/>
+          </svg>
+        </div>
+        <div class="proj-title">Forest Walker</div>
+        <div class="proj-sub">quadruped · unstructured</div>
+      </div>
+      <div class="proj-back">
+        <div class="proj-why">A robot dog that picks its way through the woods without tripping.</div>
+        <a href="/welcome/forest-walker" class="proj-link">read more ↗</a>
+      </div>
+    </div>
+
+    <div class="proj-card" style="--accent:#6a7fa3">
+      <div class="proj-front">
+        <div class="proj-tag">published</div>
+        <div class="proj-glyph">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="32" r="18"/>
+            <circle cx="32" cy="32" r="6"/>
+            <line x1="32" y1="8" x2="32" y2="14"/>
+            <line x1="32" y1="50" x2="32" y2="56"/>
+            <line x1="8" y1="32" x2="14" y2="32"/>
+            <line x1="50" y1="32" x2="56" y2="32"/>
+          </svg>
+        </div>
+        <div class="proj-title">Defect Eyes</div>
+        <div class="proj-sub">computer vision · QC</div>
+      </div>
+      <div class="proj-back">
+        <div class="proj-why">Spots flaws on plastic parts your eye would miss after lunch.</div>
+        <a href="/welcome/defect-eyes" class="proj-link">read more ↗</a>
+      </div>
+    </div>
+
+    <div class="proj-card" style="--accent:#d4a546">
+      <div class="proj-front">
+        <div class="proj-tag">preprint</div>
+        <div class="proj-glyph">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4,40 10,28 16,36 22,20 28,32 34,16 40,30 46,22 52,34 58,24"/>
+          </svg>
+        </div>
+        <div class="proj-title">Symbolic Listener</div>
+        <div class="proj-sub">gearbox · diagnostics</div>
+      </div>
+      <div class="proj-back">
+        <div class="proj-why">Reads a machine's vibration like a stethoscope, then writes the diagnosis as math.</div>
+        <a href="/welcome/symbolic-listener" class="proj-link">read more ↗</a>
+      </div>
+    </div>
+
+    <div class="proj-card" style="--accent:#8a6f9b">
+      <div class="proj-front">
+        <div class="proj-tag">published</div>
+        <div class="proj-glyph">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="20" r="10"/>
+            <line x1="32" y1="8" x2="32" y2="4"/>
+            <line x1="20" y1="12" x2="17" y2="9"/>
+            <line x1="44" y1="12" x2="47" y2="9"/>
+            <line x1="14" y1="22" x2="10" y2="22"/>
+            <line x1="50" y1="22" x2="54" y2="22"/>
+            <path d="M24 30 L28 56 M40 30 L36 56"/>
+            <line x1="26" y1="44" x2="38" y2="44"/>
+          </svg>
+        </div>
+        <div class="proj-title">Solar Nanogrid</div>
+        <div class="proj-sub">power electronics</div>
+      </div>
+      <div class="proj-back">
+        <div class="proj-why">A small box that turns sunshine into reliable electricity for off-grid homes.</div>
+        <a href="/welcome/solar-nanogrid" class="proj-link">read more ↗</a>
+      </div>
+    </div>
+
+    <div class="proj-card" style="--accent:#3a7a8a">
+      <div class="proj-front">
+        <div class="proj-tag">published</div>
+        <div class="proj-glyph">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="32,8 24,28 30,28 22,56 40,32 34,32 42,8"/>
+          </svg>
+        </div>
+        <div class="proj-title">GaN Converter</div>
+        <div class="proj-sub">EVs · high-frequency</div>
+      </div>
+      <div class="proj-back">
+        <div class="proj-why">A tiny but mighty chip that makes electric car charging more efficient.</div>
+        <a href="/welcome/gan-converter" class="proj-link">read more ↗</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── RESEARCH POSTCARDS ────────────────────────────────────────── -->
+<section class="section" id="papers">
+  <div class="section-header">
+    <div class="sh-kicker">03 — papers, but make them postcards</div>
+    <h2 class="sh-title">Six little notes from research.</h2>
+    <div class="sh-note">(drag them around)</div>
+  </div>
+
+  <div class="corkboard" id="corkboard" role="region" aria-label="Draggable research postcards">
+
+    <div class="postcard" data-id="0" style="left:2%;top:8%;transform:rotate(-3deg)" aria-label="Research paper 1">
+      <div class="pc-stripe" style="background:#7a9b6e"></div>
+      <div class="pc-content">
+        <div class="pc-venue">AIM 2026</div>
+        <div class="pc-title">Robot dogs in the forest</div>
+        <div class="pc-tldr">Helped a four-legged robot pick safe footsteps in messy terrain. It walked. It didn't fall.</div>
+        <div class="pc-stamp" style="color:#7a9b6e;border-color:#7a9b6e">01</div>
+      </div>
+    </div>
+
+    <div class="postcard" data-id="1" style="left:35%;top:4%;transform:rotate(2deg)" aria-label="Research paper 2">
+      <div class="pc-stripe" style="background:#c25a3a"></div>
+      <div class="pc-content">
+        <div class="pc-venue">ICIEA 2026</div>
+        <div class="pc-title">Self-driving tow trucks</div>
+        <div class="pc-tldr">Built one. Drove it around an industrial site. With Toyota.</div>
+        <div class="pc-stamp" style="color:#c25a3a;border-color:#c25a3a">02</div>
+      </div>
+    </div>
+
+    <div class="postcard" data-id="2" style="left:67%;top:10%;transform:rotate(-1deg)" aria-label="Research paper 3">
+      <div class="pc-stripe" style="background:#d4a546"></div>
+      <div class="pc-content">
+        <div class="pc-venue">IEEE ICIEA 2026</div>
+        <div class="pc-title">Symbolic gearbox doctor</div>
+        <div class="pc-tldr">Trained on healthy gearboxes only — broken ones show up as violated equations. 200× faster than typical methods.</div>
+        <div class="pc-stamp" style="color:#d4a546;border-color:#d4a546">03</div>
+      </div>
+    </div>
+
+    <div class="postcard" data-id="3" style="left:4%;top:52%;transform:rotate(3deg)" aria-label="Research paper 4">
+      <div class="pc-stripe" style="background:#6a7fa3"></div>
+      <div class="pc-content">
+        <div class="pc-venue">CVC 2026</div>
+        <div class="pc-title">Eyes for plastic factories</div>
+        <div class="pc-tldr">Caught every defect in the test set. Zero misses.</div>
+        <div class="pc-stamp" style="color:#6a7fa3;border-color:#6a7fa3">04</div>
+      </div>
+    </div>
+
+    <div class="postcard" data-id="4" style="left:36%;top:54%;transform:rotate(-2deg)" aria-label="Research paper 5">
+      <div class="pc-stripe" style="background:#8a6f9b"></div>
+      <div class="pc-content">
+        <div class="pc-venue">DURS 2023</div>
+        <div class="pc-title">Solar power for villages</div>
+        <div class="pc-tldr">A small DC system designed for Pakistani households disconnected from the grid.</div>
+        <div class="pc-stamp" style="color:#8a6f9b;border-color:#8a6f9b">05</div>
+      </div>
+    </div>
+
+    <div class="postcard" data-id="5" style="left:67%;top:50%;transform:rotate(1deg)" aria-label="Research paper 6">
+      <div class="pc-stripe" style="background:#3a7a8a"></div>
+      <div class="pc-content">
+        <div class="pc-venue">INMIC 2023</div>
+        <div class="pc-title">Smaller chips, fewer losses</div>
+        <div class="pc-tldr">Studied how parasitic effects make GaN power electronics misbehave at high speeds.</div>
+        <div class="pc-stamp" style="color:#3a7a8a;border-color:#3a7a8a">06</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── NOW ───────────────────────────────────────────────────────── -->
+<section class="section now-section" id="now">
+  <div class="section-header sh-light">
+    <div class="sh-kicker sh-kicker-light">04 — right now</div>
+    <h2 class="sh-title sh-title-light">What's on my desk.</h2>
+  </div>
+
+  <div class="now-grid">
+    <div class="now-tabs" id="now-tabs">
+      <button class="now-tab active" data-tab="0">building</button>
+      <button class="now-tab" data-tab="1">reading</button>
+      <button class="now-tab" data-tab="2">fixing</button>
+      <button class="now-tab" data-tab="3">dreaming</button>
+    </div>
+    <div class="now-body" id="now-body">
+      <div class="now-micro">currently <span id="now-label">building</span> ↓</div>
+      <div class="now-text" id="now-text">A retrofit autonomous tow truck that's actually about to ship to a real industrial site. First of its kind in Pakistan.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT / NOTEBOOK ────────────────────────────────────────── -->
+<section class="section" id="hi">
+  <div class="section-header">
+    <div class="sh-kicker">05 — say hi</div>
+    <h2 class="sh-title">Drop a note.</h2>
+    <div class="sh-note">(low pressure)</div>
+  </div>
+
+  <div class="contact-grid">
+
+    <!-- Notebook form -->
+    <div class="notebook" id="notebook">
+      <div class="notebook-spine"></div>
+      <div class="notebook-page">
+        <div class="nb-date" id="nb-date">May 7, 2026</div>
+        <div class="nb-lines" aria-hidden="true"></div>
+
+        <!-- Thank you state -->
+        <div class="nb-thanks" id="nb-thanks" hidden>
+          <div class="nb-thanks-text">thanks for writing — I'll reply soon ★</div>
+        </div>
+
+        <!-- Form state -->
+        <form class="nb-form" id="nb-form" novalidate>
+          <div class="nb-dear">Dear Suleiman,</div>
+          <div class="nb-field">
+            <label class="nb-label" for="nb-name">from</label>
+            <input class="nb-input" id="nb-name" type="text" placeholder="your name" autocomplete="name" />
+          </div>
+          <div class="nb-field nb-field-area">
+            <label class="nb-label" for="nb-message">subject</label>
+            <textarea class="nb-textarea" id="nb-message" placeholder="what's on your mind?" rows="5"></textarea>
+          </div>
+          <button type="submit" class="nb-submit">send it →</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Contact info panel -->
+    <div class="contact-info">
+      <div class="ci-header">Or, if forms aren't your thing —</div>
+
+      <div class="contact-row">
+        <span class="cr-icon">✉</span>
+        <span class="cr-label">EMAIL</span>
+        <a class="cr-value" href="mailto:mohammadsulaiman500@gmail.com">mohammadsulaiman500@gmail.com</a>
+      </div>
+      <div class="contact-row">
+        <span class="cr-icon">◎</span>
+        <span class="cr-label">LINKEDIN</span>
+        <a class="cr-value" href="https://linkedin.com/in/msuleimanqureshi" target="_blank" rel="noopener">/in/msuleimanqureshi</a>
+      </div>
+      <div class="contact-row">
+        <span class="cr-icon">✱</span>
+        <span class="cr-label">GITHUB</span>
+        <a class="cr-value" href="https://github.com/SuleimanQureshi" target="_blank" rel="noopener">@SuleimanQureshi</a>
+      </div>
+      <div class="contact-row">
+        <span class="cr-icon">∿</span>
+        <span class="cr-label">RESUME</span>
+        <a class="cr-value" href="/Suleiman_Resume_April_2026.pdf" target="_blank">download here</a>
+      </div>
+
+      <div class="response-card">
+        within 48h, usually faster.<br />
+        <em>unless I'm in the lab.</em>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ────────────────────────────────────────────────────── -->
+<footer class="nt-footer">
+  <span class="ft-mono">SQ ©2026 · made in karachi · fueled by chai</span>
+  <span class="ft-handwritten">thanks for reading ★</span>
+</footer>
+
+</body>
+</html>
+
+<script>
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── Mood word cycle ────────────────────────────────────────────
+  const moods = ['curious', 'caffeinated', 'soldering', 'debugging', 'shipping', 'thinking'];
+  let moodIdx = 0;
+  const moodEl = document.getElementById('mood-word');
+  if (moodEl && !reduced) {
+    setInterval(() => {
+      moodIdx = (moodIdx + 1) % moods.length;
+      moodEl.style.opacity = '0';
+      setTimeout(() => {
+        moodEl.textContent = moods[moodIdx];
+        moodEl.style.opacity = '1';
+      }, 200);
+    }, 2000);
+  }
+
+  // ── Accordion ─────────────────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('.acc-row').forEach((row) => {
+    const trigger = row.querySelector<HTMLElement>('.acc-trigger');
+    const body    = row.querySelector<HTMLElement>('.acc-body');
+    const plus    = row.querySelector<HTMLElement>('.acc-plus');
+    const icon    = row.querySelector<HTMLElement>('.acc-icon');
+    trigger?.addEventListener('click', () => {
+      const isOpen = row.dataset.open === 'true';
+      // Close all
+      document.querySelectorAll<HTMLElement>('.acc-row').forEach((r) => {
+        r.dataset.open = 'false';
+        const b = r.querySelector<HTMLElement>('.acc-body');
+        const p = r.querySelector<HTMLElement>('.acc-plus');
+        const ic = r.querySelector<HTMLElement>('.acc-icon');
+        if (b) { b.style.maxHeight = '0'; b.style.opacity = '0'; }
+        if (p) p.style.transform = '';
+        if (ic) ic.style.transform = '';
+      });
+      if (!isOpen) {
+        row.dataset.open = 'true';
+        if (body) { body.style.maxHeight = body.scrollHeight + 'px'; body.style.opacity = '1'; }
+        if (plus) plus.style.transform = 'rotate(45deg)';
+        if (icon && !reduced) icon.style.transform = 'rotate(-8deg) scale(1.1)';
+      }
+    });
+  });
+
+  // ── Project card flip ──────────────────────────────────────────
+  // handled by CSS (no JS needed for the flip itself, hover triggers it)
+
+  // ── Postcard drag ─────────────────────────────────────────────
+  const corkboard = document.getElementById('corkboard') as HTMLElement;
+  let maxZ = 10;
+
+  corkboard?.querySelectorAll<HTMLElement>('.postcard').forEach((card) => {
+    let dragging = false;
+    let startX = 0, startY = 0;
+    let origLeft = 0, origTop = 0;
+
+    function getPos() {
+      const rect = corkboard.getBoundingClientRect();
+      const left = parseFloat(card.style.left) / 100 * rect.width;
+      const top  = parseFloat(card.style.top)  / 100 * rect.height;
+      return { left, top };
+    }
+
+    card.addEventListener('mousedown', (e) => {
+      if (reduced) return;
+      dragging = true;
+      maxZ++;
+      card.style.zIndex = String(maxZ);
+      const pos = getPos();
+      startX = e.clientX - pos.left;
+      startY = e.clientY - pos.top;
+      card.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const rect = corkboard.getBoundingClientRect();
+      const newLeft = Math.max(0, Math.min(rect.width - 200, e.clientX - startX));
+      const newTop  = Math.max(0, Math.min(rect.height - 180, e.clientY - startY));
+      card.style.left = (newLeft / rect.width  * 100).toFixed(2) + '%';
+      card.style.top  = (newTop  / rect.height * 100).toFixed(2) + '%';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (dragging) {
+        dragging = false;
+        card.style.cursor = '';
+      }
+    });
+
+    // Touch support
+    card.addEventListener('touchstart', (e) => {
+      if (reduced) return;
+      const t = e.touches[0];
+      dragging = true;
+      maxZ++;
+      card.style.zIndex = String(maxZ);
+      const pos = getPos();
+      startX = t.clientX - pos.left;
+      startY = t.clientY - pos.top;
+      e.preventDefault();
+    }, { passive: false });
+
+    card.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const t = e.touches[0];
+      const rect = corkboard.getBoundingClientRect();
+      const newLeft = Math.max(0, Math.min(rect.width - 200, t.clientX - startX));
+      const newTop  = Math.max(0, Math.min(rect.height - 180, t.clientY - startY));
+      card.style.left = (newLeft / rect.width  * 100).toFixed(2) + '%';
+      card.style.top  = (newTop  / rect.height * 100).toFixed(2) + '%';
+      e.preventDefault();
+    }, { passive: false });
+
+    card.addEventListener('touchend', () => { dragging = false; });
+  });
+
+  // ── Now tabs ──────────────────────────────────────────────────
+  const nowData = [
+    { label: 'building', text: "A retrofit autonomous tow truck that's actually about to ship to a real industrial site. First of its kind in Pakistan." },
+    { label: 'reading',  text: "Papers on Kolmogorov-Arnold networks. Also: a stack of essays I keep meaning to finish." },
+    { label: 'fixing',   text: "Steady-state oscillations in a steering controller. Don't ask. Or do." },
+    { label: 'dreaming', text: "A fleet of robots that maintain themselves by listening to their own gearboxes." },
+  ];
+
+  const nowLabel = document.getElementById('now-label') as HTMLElement;
+  const nowText  = document.getElementById('now-text')  as HTMLElement;
+
+  document.querySelectorAll<HTMLElement>('.now-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.now-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const idx = parseInt(tab.dataset.tab ?? '0', 10);
+      if (nowLabel) nowLabel.textContent = nowData[idx].label;
+      if (nowText)  nowText.textContent  = nowData[idx].text;
+    });
+  });
+
+  // ── Contact form ──────────────────────────────────────────────
+  const form   = document.getElementById('nb-form')   as HTMLFormElement;
+  const thanks = document.getElementById('nb-thanks') as HTMLElement;
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('nb-name') as HTMLInputElement).value.trim();
+    const msg  = (document.getElementById('nb-message') as HTMLTextAreaElement).value.trim();
+    if (!name || !msg) return;
+    // Submit via mailto fallback
+    const subject = encodeURIComponent(`Message from ${name}`);
+    const body    = encodeURIComponent(msg);
+    window.location.href = `mailto:mohammadsulaiman500@gmail.com?subject=${subject}&body=${body}`;
+    form.hidden    = true;
+    thanks.hidden  = false;
+  });
+
+  // ── Notebook date ─────────────────────────────────────────────
+  const nbDate = document.getElementById('nb-date');
+  if (nbDate) {
+    nbDate.textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // ── Marquee pause on hover ────────────────────────────────────
+  const track = document.getElementById('marquee-track');
+  if (track) {
+    track.addEventListener('mouseenter', () => { track.style.animationPlayState = 'paused'; });
+    track.addEventListener('mouseleave', () => { track.style.animationPlayState = ''; });
+  }
+})();
+</script>
+
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --cream:   #f5f0eb;
+    --ink:     #1e1520;
+    --ink2:    #2e1f2b;
+    --rule:    #c4adb5;
+    --kicker:  #7a4f5c;
+    --tomato:  #7c2840;
+    --card:    #fdf9f8;
+    --dark:    #180f16;
+    --orange-accent: #d4954a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+  }
+
+  /* Paper grain (fixed overlay) — kept very subtle so text stays readable */
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, #8b6070 1px, transparent 1px);
+    background-size: 6px 6px;
+    mix-blend-mode: multiply;
+    opacity: 0.10;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ── Nav ───────────────────────────────────────────────────── */
+  .nt-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(245, 240, 235, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px dashed var(--rule);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .nav-switch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #4caf72;
+    background: #0d100e;
+    text-decoration: none;
+    border: 1px solid #1e3020;
+    padding: 5px 12px;
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .nav-switch:hover { background: #111; color: #c8ffb8; border-color: #4caf72; }
+
+  .nav-wordmark {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+  }
+  .nav-links a {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--kicker);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* ── Hero ──────────────────────────────────────────────────── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    padding: 72px 40px 56px;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--kicker);
+    margin-bottom: 20px;
+  }
+
+  .hero-headline {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(52px, 7vw, 96px);
+    line-height: 1.0;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .hl-italic { font-style: italic; font-weight: 400; }
+  .hl-bold   { font-weight: 700;   color: var(--tomato); font-style: normal; }
+
+  .hero-body {
+    font-size: 22px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+
+  .mood-chip {
+    display: inline-block;
+    margin-top: 14px;
+    background: #fdf0f3;
+    border: 1px solid var(--rule);
+    padding: 4px 12px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink2);
+    border-radius: 20px;
+  }
+
+  #mood-word {
+    font-style: italic;
+    color: var(--tomato);
+    transition: opacity 0.2s;
+  }
+
+  /* Polaroid hero */
+  .polaroid-hero {
+    position: relative;
+    background: #fff;
+    padding: 8px 8px 32px;
+    box-shadow: 4px 6px 20px rgba(0,0,0,0.18);
+    transform: rotate(2.5deg);
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .polaroid-tape {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 60px;
+    height: 18px;
+    background: rgba(180, 130, 145, 0.55);
+    border: 1px solid rgba(140, 90, 105, 0.3);
+    z-index: 1;
+  }
+
+  .polaroid-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #c4a0ad 0%, #9e7080 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: #6e5a40;
+    overflow: hidden;
+  }
+
+  .polaroid-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .polaroid-photo.photo-fallback::after {
+    content: '[ photo of S ]';
+    color: #e8cfd5;
+  }
+
+  .polaroid-caption {
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    color: var(--kicker);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* ── Marquee ───────────────────────────────────────────────── */
+  .marquee-strip {
+    background: var(--dark);
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    padding: 16px 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .marquee-track { animation: marquee 40s linear infinite; }
+  }
+
+  .marquee-items {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding-right: 16px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 22px;
+    color: #fff;
+  }
+
+  .dot { color: #8a6070; }
+  .marquee-accent { color: var(--orange-accent); }
+
+  /* ── Sections ──────────────────────────────────────────────── */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 40px;
+  }
+
+  .section-shelf {
+    background: none;
+  }
+
+  .section-header {
+    margin-bottom: 48px;
+  }
+
+  .sh-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--kicker);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .sh-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .sh-note {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--kicker);
+  }
+
+  /* ── Accordion ─────────────────────────────────────────────── */
+  .accordion {
+    border-top: 2px solid var(--ink);
+  }
+
+  .acc-row {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .acc-trigger {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .acc-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .acc-labels { flex: 1; }
+
+  .acc-headline {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .acc-aka {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--kicker);
+    margin-top: 4px;
+  }
+
+  .acc-plus {
+    font-size: 28px;
+    color: var(--ink2);
+    font-weight: 300;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    line-height: 1;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink2);
+    padding: 0 76px 0 76px;
+  }
+
+  .acc-row[data-open="true"] .acc-body {
+    padding-bottom: 20px;
+  }
+
+  /* ── Project grid ──────────────────────────────────────────── */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .proj-card {
+    position: relative;
+    aspect-ratio: 1;
+    cursor: pointer;
+    perspective: 800px;
+  }
+
+  .proj-front,
+  .proj-back {
+    position: absolute;
+    inset: 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    backface-visibility: hidden;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .proj-front {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    transform: rotateY(0deg);
+  }
+
+  .proj-back {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: #fff;
+    transform: rotateY(180deg);
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .proj-card:hover .proj-front { transform: rotateY(-180deg); }
+  .proj-card:hover .proj-back  { transform: rotateY(0deg); }
+  .proj-card:hover             { transform: rotate(1.5deg) scale(1.02); transition: transform 0.3s ease; }
+
+  .proj-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 2px 6px;
+    align-self: flex-start;
+    margin-bottom: auto;
+  }
+
+  .proj-glyph {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink2);
+    opacity: 0.5;
+  }
+  .proj-glyph svg { width: 64px; height: 64px; }
+
+  .proj-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: auto;
+  }
+
+  .proj-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--kicker);
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+
+  .proj-why {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.92);
+  }
+
+  .proj-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+    padding-bottom: 1px;
+    align-self: flex-start;
+  }
+
+  /* ── Corkboard / postcards ─────────────────────────────────── */
+  .corkboard {
+    position: relative;
+    width: 100%;
+    height: 540px;
+    background: var(--card);
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 32px,
+      var(--rule) 32px,
+      var(--rule) 33px
+    );
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+
+  .postcard {
+    position: absolute;
+    width: 260px;
+    background: var(--card);
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.14);
+    display: flex;
+    cursor: grab;
+    user-select: none;
+    transition: box-shadow 0.15s;
+    z-index: 2;
+  }
+
+  .postcard:active { cursor: grabbing; box-shadow: 4px 8px 24px rgba(0,0,0,0.22); }
+
+  .pc-stripe {
+    width: 6px;
+    flex-shrink: 0;
+  }
+
+  .pc-content {
+    flex: 1;
+    padding: 14px 16px;
+    position: relative;
+  }
+
+  .pc-venue {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--kicker);
+    margin-bottom: 6px;
+  }
+
+  .pc-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .pc-tldr {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+
+  .pc-stamp {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    transform: rotate(-12deg);
+    opacity: 0.75;
+  }
+
+  /* ── Now section ───────────────────────────────────────────── */
+  .now-section {
+    background: var(--dark);
+    max-width: none;
+    padding: 80px 40px;
+  }
+
+  .now-section .section-header { max-width: 1100px; margin: 0 auto 48px; }
+  .sh-kicker-light  { color: var(--orange-accent); }
+  .sh-title-light   { color: #fff; }
+
+  .now-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .now-tabs {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #2e1a28;
+  }
+
+  .now-tab {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 28px;
+    text-align: left;
+    padding: 16px 0;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #2e1a28;
+    color: #8a6070;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    padding-left: 16px;
+  }
+
+  .now-tab.active {
+    background: var(--tomato);
+    color: #fff;
+    padding-left: 16px;
+  }
+
+  .now-tab:hover:not(.active) { color: #c4a0b0; }
+
+  .now-body { padding-top: 8px; }
+
+  .now-micro {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--orange-accent);
+    margin-bottom: 16px;
+  }
+
+  .now-text {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    line-height: 1.5;
+    color: #fff;
+  }
+
+  /* ── Contact / notebook ────────────────────────────────────── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .notebook {
+    display: flex;
+    position: relative;
+    box-shadow: 3px 5px 18px rgba(0,0,0,0.14);
+  }
+
+  .notebook-spine {
+    width: 6px;
+    background: var(--tomato);
+    flex-shrink: 0;
+  }
+
+  .notebook-page {
+    flex: 1;
+    background: var(--card);
+    padding: 24px 28px;
+    position: relative;
+    min-height: 380px;
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 32px,
+      #d5c0c8 32px,
+      #d5c0c8 33px
+    );
+  }
+
+  .nb-date {
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: var(--kicker);
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .nb-dear {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .nb-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .nb-field {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 4px;
+  }
+
+  .nb-field-area {
+    align-items: flex-start;
+  }
+
+  .nb-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--kicker);
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .nb-input,
+  .nb-textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--ink);
+    width: 100%;
+    resize: none;
+    line-height: 1.5;
+  }
+
+  .nb-input::placeholder,
+  .nb-textarea::placeholder { color: #b08898; }
+
+  .nb-submit {
+    align-self: flex-start;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 18px;
+    background: var(--tomato);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .nb-submit:hover { opacity: 0.87; }
+
+  .nb-thanks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+  }
+
+  .nb-thanks-text {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    color: var(--tomato);
+    text-align: center;
+  }
+
+  .nb-lines { display: none; }
+
+  /* Contact info */
+  .contact-info { padding-top: 16px; }
+
+  .ci-header {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--ink2);
+    margin-bottom: 24px;
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .cr-icon {
+    font-size: 16px;
+    color: var(--tomato);
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .cr-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--kicker);
+    width: 70px;
+    flex-shrink: 0;
+  }
+
+  .cr-value {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .cr-value:hover { color: var(--tomato); text-decoration: underline; }
+
+  .response-card {
+    margin-top: 24px;
+    border: 1px dashed var(--rule);
+    padding: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--kicker);
+    line-height: 1.6;
+    max-width: 280px;
+  }
+  .response-card em { font-style: italic; }
+
+  /* ── Footer ────────────────────────────────────────────────── */
+  .nt-footer {
+    background: var(--dark);
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ft-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 0.06em;
+  }
+
+  .ft-handwritten {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--orange-accent);
+  }
+
+  /* ── Responsive ────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .project-grid { grid-template-columns: repeat(2, 1fr); }
+    .now-grid     { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr; }
+    .polaroid-hero { display: none; }
+  }
+
+  @media (max-width: 640px) {
+    .section { padding: 56px 20px; }
+    .hero { padding: 40px 20px 36px; }
+    .nt-nav { padding: 12px 20px; gap: 12px; }
+    .nav-links { display: none; }
+    .project-grid { grid-template-columns: 1fr; }
+    .corkboard { height: 400px; overflow-y: auto; }
+    .postcard { position: relative !important; left: 0 !important; top: 0 !important; transform: none !important; width: 100%; margin-bottom: 12px; }
+    .now-tabs { flex-direction: row; flex-wrap: wrap; }
+    .now-tab { font-size: 20px; flex: 1; text-align: center; }
+    .nt-footer { flex-direction: column; gap: 8px; text-align: center; padding: 20px; }
+    .marquee-strip { display: none; }
+  }
+</style>
